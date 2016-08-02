@@ -18,16 +18,15 @@ void lll_Main(void)
         int8_t var_i_6 = __tmp10;
 L11:
         {
-            int32_t __tmp12 = 40;
-            int __tmp13 = var_i_6 <= __tmp12;
-            if (__tmp13)
+            int __tmp12 = var_i_6 <= var_n_5;
+            if (__tmp12)
             {
-                char* __tmp14 = "%d: %lld\n";
-                int64_t __tmp15 = func_fib_3(var_i_6);
-                int32_t __tmp16 = printf(__tmp14, var_i_6, __tmp15);
-                int32_t __tmp17 = 1;
-                int32_t __tmp18 = var_i_6 + __tmp17;
-                var_i_6 = __tmp18;
+                char* __tmp13 = "%d: %lld\n";
+                int64_t __tmp14 = func_fib_3(var_i_6);
+                int32_t __tmp15 = printf(__tmp13, var_i_6, __tmp14);
+                int32_t __tmp16 = 1;
+                int32_t __tmp17 = var_i_6 + __tmp16;
+                var_i_6 = __tmp17;
                 goto L11;
             }
         }
@@ -36,26 +35,26 @@ L11:
 int64_t func_fib_3(int64_t var_n_4)
 {
     {
-        int32_t __tmp19 = 2;
-        int __tmp20 = var_n_4 < __tmp19;
-        if (__tmp20)
+        int32_t __tmp18 = 2;
+        int __tmp19 = var_n_4 < __tmp18;
+        if (__tmp19)
         {
             return var_n_4;
         }
     }
-    int32_t __tmp21 = 1;
-    int64_t __tmp22 = var_n_4 - __tmp21;
-    int64_t __tmp23 = func_fib_3(__tmp22);
-    int32_t __tmp24 = 2;
-    int64_t __tmp25 = var_n_4 - __tmp24;
-    int64_t __tmp26 = func_fib_3(__tmp25);
-    int64_t __tmp27 = __tmp23 + __tmp26;
-    return __tmp27;
+    int32_t __tmp20 = 1;
+    int64_t __tmp21 = var_n_4 - __tmp20;
+    int64_t __tmp22 = func_fib_3(__tmp21);
+    int32_t __tmp23 = 2;
+    int64_t __tmp24 = var_n_4 - __tmp23;
+    int64_t __tmp25 = func_fib_3(__tmp24);
+    int64_t __tmp26 = __tmp22 + __tmp25;
+    return __tmp26;
 }
 int main(int argc, char** argv)
 {
     lll_Main();
-    int32_t __tmp28 = 0;
-    return __tmp28;
+    int32_t __tmp27 = 0;
+    return __tmp27;
 }
 

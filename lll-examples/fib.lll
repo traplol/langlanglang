@@ -7,6 +7,6 @@ func fib(n: i64) -> i64 {
 
 n := 40;
 printf("first %d fibonacci numbers!\n", n);
-for i in 0..40 {
+for i in 0..n {
     printf("%d: %lld\n", i, fib(i));
 }
