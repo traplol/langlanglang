@@ -59,6 +59,10 @@
     <Compile Include="IntegerTypeTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CIL\CIL\CIL.csproj">
+      <Project>{f53bee09-d0a6-41b0-b5a9-cfc782ce46cb}</Project>
+      <Name>CIL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Langlanglang\Langlanglang.csproj">
       <Project>{9b3246ee-6572-405c-9ae4-164372018829}</Project>
       <Name>Langlanglang</Name>

@@ -107,6 +107,7 @@ namespace Langlanglang.Parsing.AstNodes
                     var compiled = CompileGeneric(cil, func);
                     return compiled.GetRealReturnType();
                 }
+                return func.GetRealReturnType();
             }
             return Callee.TryInferType(cil);
         }
