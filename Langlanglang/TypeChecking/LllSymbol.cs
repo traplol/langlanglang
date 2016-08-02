@@ -27,6 +27,7 @@ namespace Langlanglang.TypeChecking
             Name = copyFrom.Name;
             CName = copyFrom.CName;
             Extra = copyFrom.Extra;
+            MangledName = copyFrom.MangledName;
         }
     }
 }

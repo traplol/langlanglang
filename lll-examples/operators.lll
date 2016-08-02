@@ -1,0 +1,58 @@
+struct Test {
+    a: int;
+    b: int;
+    c: int;
+}
+
+extend Test(this, a: int, b: int, c: int) {
+    this.a = a;
+    this.b = b;
+    this.c = c;
+}
+
+extend Test __eq__(this, other: Test*) -> bool {
+    return this.a == other.a && this.b == other.b && this.c == other.c;
+}
+
+extend Test __lt__(this, other: Test*) -> bool {
+    return this.a < other.a && this.b < other.b && this.c < other.c;
+}
+
+extend Test __le__(this, other: Test*) -> bool {
+    return this < other || this == other;
+}
+
+extend Test __gt__(this, other: Test*) -> bool {
+    return this.a > other.a && this.b > other.b && this.c > other.c;
+}
+
+extend Test __ge__(this, other: Test*) -> bool {
+    return this > other || this == other;
+}
+
+extend Test __add__(this, other: Test*) -> Test* {
+    a := this.a + other.a;
+    b := this.b + other.b;
+    c := this.c + other.c;
+    return new Test(a, b, c);
+}
+
+extend Test __mul__(this, other: Test*) -> Test* {
+    a := this.a * other.a;
+    b := this.b * other.b;
+    c := this.c * other.c;
+    return new Test(a, b, c);
+}
+
+extend Test print(this) {
+    printf("%d, %d, %d\n", this.a, this.b, this.c);
+}
+
+t1 := new Test(1,2,3);
+t2 := new Test(1,2,3);
+
+//t3 := t1 + t2;
+//t3.print();
+
+(t1 + t1 + t1 + t1).print();
+(t1 * t1 * t1 * t1).print();

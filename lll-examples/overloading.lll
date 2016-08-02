@@ -1,0 +1,49 @@
+func foo(n: i8) {
+    printf("i8: %d\n", n);
+}
+func foo(n: i16) {
+    printf("i16: %d\n", n);
+}
+func foo(n: i32) {
+    printf("i32: %d\n", n);
+}
+func foo(n: i64) {
+    printf("i64: %lld\n", n);
+}
+func foo(n: u8) {
+    printf("u8: %d\n", n);
+}
+func foo(n: u16) {
+    printf("u16: %d\n", n);
+}
+func foo(n: u32) {
+    printf("u32: %d\n", n);
+}
+func foo(n: u64) {
+    printf("u64: %d\n", n);
+}
+
+x8 : i8 = 8;
+x16 : i16 = 16;
+x32 : i32 = 32;
+x64 : i64 = 64;
+
+ux8 : u8 = 8;
+ux16 : u16 = 16;
+ux32 : u32 = 36;
+ux64 : u64 = 64;
+
+foo(x8);    // foo(n: i8)
+foo(x16);   // foo(n: i16)
+foo(x32);   // foo(n: i32)
+foo(x64);   // foo(n: i64)
+
+foo(ux8);   // foo(n: u8)
+foo(ux16);   // foo(n: u16)
+foo(ux32);   // foo(n: u32)
+foo(ux64);   // foo(n: u64)
+
+foo(100);                 // foo(n: i32)
+foo(10000);               // foo(n: i32)
+foo(1000000000);          // foo(n: i32)
+foo(10000000000000000);   // foo(n: i64)

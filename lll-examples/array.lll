@@ -1,0 +1,15 @@
+
+
+n := 5;
+
+x := new int[n];
+
+printf("setting values\n");
+for i in 0..n-1 {
+    x[i] = i;
+}
+
+printf("reading values\n");
+for i in 0..n-1 {
+    printf("%d\n", x[i]);
+}

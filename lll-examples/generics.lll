@@ -1,0 +1,46 @@
+struct Pet {
+    Type: char*;
+    Name: char*;
+}
+
+extend Pet(this, type: char*, name: char*) {
+    this.Type = type;
+    this.Name = name;
+}
+
+struct Person {
+    Name: char*;
+    Pet: Pet*;
+}
+
+extend Person(this, name: char*, pet: Pet*) {
+    this.Name = name;
+    this.Pet = pet;
+}
+
+extend Person GenericFunc(this, par: #T) -> T {
+    printf('%s: %08x\n', this.Name, par);
+    return par;
+}
+
+extend ~Person(this) {
+    delete this.Pet;
+}
+
+func PrintName(thing: #T) {
+    printf('%s\n', thing.Name);
+}
+
+marney := new Pet("Cat", "Marney");
+max := new Person("Max", marney);
+
+x := max.GenericFunc(marney);
+y := max.GenericFunc(255);
+
+printf("%x, %x\n", x, y);
+
+PrintName(max);
+PrintName(max.Pet);
+
+delete max;
+

@@ -1,0 +1,54 @@
+struct String {
+    length : size;
+    capacity : size;
+    string : char*;
+}
+
+extend String(this, str : char*) {
+    this.length = strlen(str);
+    this.capacity = this.length + 1;
+    this.string = alloc(sizeof(char) * this.capacity);
+    memcpy(this.string, str, this.capacity);
+}
+
+extend ~String(this) {
+    this.length = 0;
+    this.capacity = 0;
+    free(this.string);
+}
+
+extend String print(this) {
+    printf('My string: %s\n', this.string);
+}
+
+extend String print(this, other : String*) {
+    printf('My string: %s - %s\n', this.string, other.string);
+}
+
+extend String anotherone() {
+    printf('and another one.');
+}
+
+func strlen(str: char*) -> size {
+    i : size;
+    for i = 0; str[i] != 0; i = i + 1 {}
+    return i;
+}
+
+func memcpy(dst: char*, src: char*, len: size) -> char* {
+    for i : size = 0; i < len; i = i + 1 {
+        dst[i] = src[i];
+    }
+    return dst;
+}
+
+str : = new String('hello world');
+other := new String('other string');
+
+str.print();
+str.print(other);
+str.anotherone();
+other.anotherone();
+
+delete str;
+delete other;

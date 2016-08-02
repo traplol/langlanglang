@@ -1,0 +1,78 @@
+func F() -> i32 {
+    printf("F ");
+    return 0;
+}
+func T() -> i32 {
+    printf("T ");
+    return 1;
+}
+
+if F() && F() && F() || T() {
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if F() && F() && T() || T() {
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if F() && T() && F() || T() { // F T -> true
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if T() && F() && F() || T() { // F T -> true
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if T() && F() && F() && T() { // F T -> true
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if T() && F() && F() && T() { // T F T -> true
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if T() && F() && F() && T() { // T F -> false
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if T() && T() && T() && T() { // T T T T -> true
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if T() && F() || F() && T() { // T F F -> false
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}
+
+if F() || T() { // F T -> true
+    printf('-> true\n');
+}
+else {
+    printf('-> false\n');
+}

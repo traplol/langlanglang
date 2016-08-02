@@ -1,0 +1,72 @@
+
+struct Vector {
+    Capacity: size;
+    Length: size;
+    Array: int*;
+}
+
+extend Vector(this) {
+    this.Capacity = 8;
+    this.Length = 0;
+    this.Array = alloc(this.Capacity * sizeof(int));
+}
+
+extend ~Vector(this) {
+    this.Capacity = 0;
+    this.Length = 0;
+    delete this.Array;
+}
+
+extend Vector push_back(this, item: int) {
+    if this.Length + 1 >= this.Capacity {
+        this.resize(this.Capacity * 2);
+    }
+    this.Array[this.Length] = item;
+    this.Length = this.Length + 1;
+}
+
+extend Vector __lshift__(this, item: int) -> Vector* {
+    this.push_back(item);
+    return this;
+}
+
+extend Vector pop_back(this) -> int {
+    tmp := this.Array[this.Length - 1];
+    this.Array[this.Length - 1] = 0;
+    this.Length = this.Length - 1;
+    return tmp;
+}
+
+extend Vector resize(this, newSize: size) {
+    newArray : int* = alloc(newSize * sizeof(int));
+    limit := min(this.Length, newSize);
+    for i := 0; i < limit; i = i + 1 {
+        newArray[i] = this.Array[i];
+    }
+    tmp := this.Array;
+    this.Array = newArray;
+    delete tmp;
+}
+
+extend Vector print_elems(this) {
+    printf("E: ");
+    for itr := 0; itr < this.Length; itr = itr + 1 {
+        printf("%d", this.Array[itr]);
+        if (itr + 1 < this.Length) {
+            printf(", ");
+        }
+    }
+    printf("\n");
+}
+
+func min(x: #T, y: #T) -> T {
+    if x < y {
+        return x;
+    }
+    return y;
+}
+
+test := new Vector();
+
+test << 1 << 2 << 3 << 4 << 5;
+test.print_elems();

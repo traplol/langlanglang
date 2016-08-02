@@ -1,0 +1,24 @@
+printf("\n=== 0..10 ===\n");
+
+for i in 0..10 {
+    printf("%d\n", i);
+}
+
+printf("\n=== 10..0 ===\n");
+
+for i in 10..0 - {
+    printf("%d\n", i);
+}
+
+N := 10;
+printf("\n=== 0..N ===\n");
+
+for i in 0..N {
+    printf("%d\n", i);
+}
+
+printf("\n=== N..0 ===\n");
+
+for i in N..0 - {
+    printf("%d\n", i);
+}

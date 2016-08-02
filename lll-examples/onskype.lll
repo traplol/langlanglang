@@ -1,0 +1,65 @@
+foreign func sprint as 'sprintf'(buf: char*, fmt: char*, ...) -> i32;
+foreign func strlen (str: char*) -> size;
+foreign func memcpy (dest: i8*, src: i8*, size: size) -> i8*;
+
+struct Date {
+    Month : i8;
+    Day : i8;
+    Year : i16;
+}
+
+struct Person {
+    Name : char*;
+    FamilyName : char*;
+    Age : i32;
+    BirthDay : Date*;
+}
+
+extend Date(this, month: i8, day: i8, year: i16) {
+    this.Month = month;
+    this.Day = day;
+    this.Year = year;
+}
+
+extend Person(this, name: char*, familyName: char*, birthDay: Date*) {
+    this.Name = name;
+    this.FamilyName = familyName;
+    this.BirthDay = birthDay;
+
+    today := new Date(7, 30, 2016);
+    this.Age = today.AgeYears(birthDay);
+    delete today;
+}
+
+extend Date AgeYears(this, other: Date*) -> i32 {
+    diff := this.Year - other.Year;
+    if diff < 0 {
+        return diff * -1;
+    }
+    return diff;
+}
+
+extend Person print(this) {
+    printf('My name is %s %s and I am %d years old!\n', this.Name, this.FamilyName, this.Age);
+}
+extend Person print(this, times: i32) {
+    for i := 0; i < times; i = i + 1 {
+        this.Age = this.Age - 1;
+        this.print();
+    }
+}
+
+extend Date to_string(this) -> char* {
+    str : char* = alloc(11);
+    sprint(str, "%02d/%02d/%04d", this.Month, this.Day, this.Year);
+    return str;
+}
+
+birthday := new Date(8, 22, 1991);
+max := new Person("Max", "Mickey", birthday);
+
+max.print();
+printf("printing with times now!\n");
+max.print(max.Age);
+
+printf("%s\n", max.BirthDay.to_string());

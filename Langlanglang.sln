@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Langlanglang-Driver", "Lang
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Langlanglang Tests", "Langlanglang Tests\Langlanglang Tests.csproj", "{0BC51C71-4AD3-4529-B273-A667FBBD54A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIL", "..\CIL\CIL\CIL.csproj", "{F53BEE09-D0A6-41B0-B5A9-CFC782CE46CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIL", "CIL\CIL\CIL.csproj", "{F53BEE09-D0A6-41B0-B5A9-CFC782CE46CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
