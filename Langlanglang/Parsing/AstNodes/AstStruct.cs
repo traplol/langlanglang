@@ -40,8 +40,15 @@ namespace Langlanglang.Parsing.AstNodes
                 lllStruct.AddMember(m);
                 var mType = LllCompiler.SymTable.LookupType(m.Type);
                 var cType = cil.SymTable.LookupType(mType.CName);
-                var mem = new CILVariableDecl(m.SourceInfo, cType, m.PointerDepth, m.Name);
-                _cilStruct.AddMember(mem);
+                CILVariableDecl member;
+                if (m.IsFixedArray)
+                {
+                    member = new CILFixedArray(m.SourceInfo, cType, m.PointerDepth, m.Name, m.FixedArraySize);
+                }
+                else {
+                    member = new CILVariableDecl(m.SourceInfo, cType, m.PointerDepth, m.Name);
+                }
+                _cilStruct.AddMember(member);
             }
         }
 

@@ -649,5 +649,33 @@ namespace Langlanglang_Tests
             Assert.IsTrue(decl.IsFixedArray);
             Assert.AreEqual(decl.FixedArraySize, 45);
         }
+
+        [TestMethod]
+        public void AstTestFixedSizedArrayOfPointersInStruct()
+        {
+            var ast = ParseString("struct Struct { x : int*[45]; }");
+            Assert.AreEqual(1, ast.Roots.Count);
+            var @struct = ast.Roots[0] as AstStruct;
+            var decl = @struct.Members[0];
+            Assert.AreEqual("x", decl.Name);
+            Assert.AreEqual("int", decl.Type);
+            Assert.AreEqual(2, decl.PointerDepth);
+            Assert.IsTrue(decl.IsFixedArray);
+            Assert.AreEqual(decl.FixedArraySize, 45);
+        }
+
+        [TestMethod]
+        public void AstTestFixedSizedArrayInStruct()
+        {
+            var ast = ParseString("struct Struct { x : int[45]; }");
+            Assert.AreEqual(1, ast.Roots.Count);
+            var @struct = ast.Roots[0] as AstStruct;
+            var decl = @struct.Members[0];
+            Assert.AreEqual("x", decl.Name);
+            Assert.AreEqual("int", decl.Type);
+            Assert.AreEqual(1, decl.PointerDepth);
+            Assert.IsTrue(decl.IsFixedArray);
+            Assert.AreEqual(decl.FixedArraySize, 45);
+        }
     }
 }

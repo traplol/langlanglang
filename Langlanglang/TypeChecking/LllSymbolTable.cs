@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Langlanglang.Parsing.AstNodes;
 
 namespace Langlanglang.TypeChecking
 {
@@ -188,6 +189,7 @@ namespace Langlanglang.TypeChecking
             st.AddAlias("long", "i64");
             st.AddAlias("size", "u64");
             st.AddAlias("bool", "i8");
+
             return st;
         }
     }

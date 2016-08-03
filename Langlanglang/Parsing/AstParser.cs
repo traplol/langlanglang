@@ -514,12 +514,28 @@ namespace Langlanglang.Parsing
                 tks.Expect(TokenType.Colon);
                 var memberType = tks.Expect(TokenType.Ident).StringValue;
                 int ptrDepth = 0;
+                int fixedSize = 0;
                 while (tks.Accept(TokenType.Star) != null)
                 {
                     ptrDepth++;
                 }
+                if (tks.Accept(TokenType.LSquBracket) != null)
+                {
+                    var size = tks.Expect(TokenType.Number);
+                    if (!size.IsIntegral())
+                    {
+                        throw new UnexpectedTokenException(
+                            TokenType.Number, 
+                            string.Format(
+                                "Error: {0} : Expected integral number, got `{1}'",
+                                size.SourceInfo, size.StringValue));
+                    }
+                    ++ptrDepth;
+                    fixedSize = (int)size.ToDecimal();
+                    tks.Expect(TokenType.RSquBracket);
+                }
                 tks.Expect(TokenType.Semicolon);
-                members.Add(new AstDeclaration(si, memberId, memberType, ptrDepth, null));
+                members.Add(new AstDeclaration(si, memberId, memberType, ptrDepth, null, fixedSize));
             }
             return new AstStruct(si, ident, members);
         }

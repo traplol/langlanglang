@@ -1,0 +1,36 @@
+struct StructWithFixedArray {
+    arr : int[20];
+}
+
+extend StructWithFixedArray(this) {
+    this.fill();
+}
+
+extend StructWithFixedArray fill(this) {
+    for i in 0..19 {
+        this.arr[i] = i + 1;
+    }
+}
+
+extend StructWithFixedArray zero(this) {
+    for i in 0..19 {
+        this.arr[i] = 0;
+    }
+}
+
+extend StructWithFixedArray print(this) {
+    for i in 0..19 {
+        printf("%2d", this.arr[i]);
+        if i + 1 <= 19 {
+            printf(", ");
+        }
+    }
+    printf("\n");
+}
+
+s := new StructWithFixedArray();
+s.print();
+s.zero();
+s.print();
+s.fill();
+s.print();

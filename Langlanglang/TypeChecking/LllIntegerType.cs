@@ -24,7 +24,7 @@ namespace Langlanglang.TypeChecking
             var other = obj as LllIntegerType;
             if (other == null)
             {
-                return false;
+                return base.Equals(obj);
             }
 
             return Signed == other.Signed

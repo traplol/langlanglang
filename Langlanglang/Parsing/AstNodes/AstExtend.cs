@@ -152,7 +152,13 @@ namespace Langlanglang.Parsing.AstNodes
                 var arg = args[i];
                 var argType = arg.TryInferType(cil);
                 var parType = par.GetRealType();
-                if (argType is LllIntegerType && parType is LllIntegerType) { continue; }
+                var argType_ = argType as LllIntegerType;
+                var parType_ = parType as LllIntegerType;
+                if (argType_ != null && parType_ != null)
+                {
+                    matches = argType_.PointerDepth == 0 && parType_.PointerDepth == 0;
+                    continue;
+                }
                 matches = argType.Equals(parType);
             }
             return matches;

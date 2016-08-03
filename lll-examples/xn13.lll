@@ -1,0 +1,16 @@
+foreign func s as 'puts'(s:char*)->i32;
+foreign func c as 'putchar'(s:char*)->i32;
+
+i:i64=1;for;i>0;
+s(""){for j:=i,i
+=2*i^i/2;j;j=j/2
+{c(" X"[j&1]);}}
+
+/*
+ *  i : i64 = 1;
+ *  for ; i > 0; s("") {
+ *      for j := i, i = 2 * i ^ i / 2; j; j = j / 2 {
+ *          c(" X"[j&1]);
+ *      }
+ *  }
+ */

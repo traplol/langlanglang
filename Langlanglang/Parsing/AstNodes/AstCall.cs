@@ -102,12 +102,18 @@ namespace Langlanglang.Parsing.AstNodes
             {
                 var fixedIdent = FixIdent(cil, ident.Name);
                 var func = LllCompiler.SymTable.LookupSymbol(fixedIdent)?.Extra as AstFunc;
-                if (func != null && func.IsGeneric)
+                if (func != null)
                 {
-                    var compiled = CompileGeneric(cil, func);
-                    return compiled.GetRealReturnType();
+                    if (func.IsGeneric)
+                    {
+                        var compiled = CompileGeneric(cil, func);
+                        return compiled.GetRealReturnType();
+                    }
+                    else
+                    {
+                        return func.GetRealReturnType();
+                    }
                 }
-                return func.GetRealReturnType();
             }
             return Callee.TryInferType(cil);
         }

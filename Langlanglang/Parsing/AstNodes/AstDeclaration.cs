@@ -107,7 +107,14 @@ namespace Langlanglang.Parsing.AstNodes
 
         public AstDeclaration ShallowClone()
         {
-            return new AstDeclaration(SourceInfo, Name, Type, PointerDepth, AssigningValue, IsGenericlyTyped);
+            return new AstDeclaration(
+                SourceInfo, 
+                Name, 
+                Type, 
+                PointerDepth, 
+                AssigningValue,
+                FixedArraySize,
+                IsGenericlyTyped);
         }
     }
 }

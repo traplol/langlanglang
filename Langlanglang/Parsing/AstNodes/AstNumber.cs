@@ -36,14 +36,14 @@ namespace Langlanglang.Parsing.AstNodes
         {
             if (Number%1 == 0)
             {
-                if (IsBetweenInclusive(sbyte.MinValue, sbyte.MaxValue))
-                {
-                    return LllCompiler.SymTable.LookupType("i8");
-                }
-                if (IsBetweenInclusive(short.MinValue, short.MaxValue))
-                {
-                    return LllCompiler.SymTable.LookupType("short");
-                }
+                //if (IsBetweenInclusive(sbyte.MinValue, sbyte.MaxValue))
+                //{
+                //    return LllCompiler.SymTable.LookupType("i8");
+                //}
+                //if (IsBetweenInclusive(short.MinValue, short.MaxValue))
+                //{
+                //    return LllCompiler.SymTable.LookupType("short");
+                //}
                 if (IsBetweenInclusive(int.MinValue, int.MaxValue))
                 {
                     return LllCompiler.SymTable.LookupType("int");

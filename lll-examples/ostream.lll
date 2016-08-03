@@ -1,0 +1,22 @@
+struct OStream {
+    x: i32;
+}
+
+extend OStream(this) {}
+
+extend OStream __lshift__(this, val: char*) -> OStream* {
+    printf("%s ", val);
+    return this;
+}
+
+extend OStream __lshift__(this, val: int) -> OStream* {
+    printf("%ld ", val);
+    return this;
+}
+
+out := new OStream();
+endl := "\n";
+
+for i in 0..100 {
+    out << i << "hello world" << 42 << -123 << "boop" << endl;
+}
