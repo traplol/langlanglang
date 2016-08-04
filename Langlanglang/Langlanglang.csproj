@@ -69,6 +69,7 @@
     <Compile Include="Parsing\AstNodes\AstIf.cs" />
     <Compile Include="Parsing\AstNodes\AstRequire.cs" />
     <Compile Include="Parsing\AstNodes\AstString.cs" />
+    <Compile Include="Parsing\AstNodes\AstType.cs" />
     <Compile Include="Parsing\AstNodes\AstUnaryOp.cs" />
     <Compile Include="Parsing\AstNodes\AstWhile.cs" />
     <Compile Include="Parsing\AstParser.cs" />

@@ -676,6 +676,16 @@ namespace Langlanglang_Tests
         }
 
         [TestMethod]
+        public void TokensTestRef()
+        {
+            var tokens = _tokenizer.Parse(" ref ");
+            Assert.IsNotNull(tokens);
+            Assert.AreEqual(1, tokens.Count);
+            Assert.AreEqual(TokenType.Ref, tokens[0].Type);
+            Assert.AreEqual("ref", tokens[0].StringValue);
+        }
+
+        [TestMethod]
         public void TokensTestDotDotDot()
         {
             var tokens = _tokenizer.Parse(" ... ");

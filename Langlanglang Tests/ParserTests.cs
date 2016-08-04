@@ -31,8 +31,8 @@ namespace Langlanglang_Tests
             var ast = ParseString("x : String;");
             Assert.AreEqual(1, ast.Roots.Count);
             var decl = ast.Roots[0] as AstDeclaration;
-            Assert.AreEqual(decl.Name, "x");
-            Assert.AreEqual(decl.Type, "String");
+            Assert.AreEqual("x", decl.Name);
+            Assert.AreEqual("String", decl.Type.TypeName);
             Assert.AreEqual(decl.AssigningValue, null);
         }
 
@@ -42,8 +42,8 @@ namespace Langlanglang_Tests
             var ast = ParseString("x : Number = 5;");
             Assert.AreEqual(1, ast.Roots.Count);
             var decl = ast.Roots[0] as AstDeclaration;
-            Assert.AreEqual(decl.Name, "x");
-            Assert.AreEqual(decl.Type, "Number");
+            Assert.AreEqual("x", decl.Name);
+            Assert.AreEqual("Number", decl.Type.TypeName);
 
             var num = decl.AssigningValue as AstNumber;
             Assert.IsNotNull(num);
@@ -56,7 +56,7 @@ namespace Langlanglang_Tests
             var ast = ParseString("x := 5;");
             Assert.AreEqual(1, ast.Roots.Count);
             var decl = ast.Roots[0] as AstDeclaration;
-            Assert.AreEqual(decl.Name, "x");
+            Assert.AreEqual("x", decl.Name);
             Assert.IsNull(decl.Type);
 
             var num = decl.AssigningValue as AstNumber;
@@ -81,7 +81,7 @@ namespace Langlanglang_Tests
             var func = ast.Roots[0] as AstFunc;
             Assert.AreEqual("test", func.Name);
             Assert.AreEqual(0, func.Params.Count);
-            Assert.AreEqual("void", func.ReturnType);
+            Assert.AreEqual("void", func.ReturnType.TypeName);
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@ namespace Langlanglang_Tests
             var func = ast.Roots[0] as AstFunc;
             Assert.AreEqual("test", func.Name);
             Assert.AreEqual(0, func.Params.Count);
-            Assert.AreEqual("Object", func.ReturnType);
+            Assert.AreEqual("Object", func.ReturnType.TypeName);
         }
 
         [TestMethod]
@@ -103,7 +103,7 @@ namespace Langlanglang_Tests
             var func = ast.Roots[0] as AstFunc;
             Assert.AreEqual("test_Ty1_Ty2", func.MangledName);
             Assert.AreEqual(2, func.Params.Count);
-            Assert.AreEqual("void", func.ReturnType);
+            Assert.AreEqual("void", func.ReturnType.TypeName);
         }
 
         [TestMethod]
@@ -114,7 +114,7 @@ namespace Langlanglang_Tests
             var func = ast.Roots[0] as AstFunc;
             Assert.AreEqual("test_Ty1_Ty2", func.MangledName);
             Assert.AreEqual(2, func.Params.Count);
-            Assert.AreEqual("Ty3", func.ReturnType);
+            Assert.AreEqual("Ty3", func.ReturnType.TypeName);
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace Langlanglang_Tests
             Assert.AreEqual("test_##_##", func.MangledName);
             Assert.AreEqual(2, func.Params.Count);
             Assert.IsTrue(func.IsGeneric);
-            Assert.AreEqual("Ty3", func.ReturnType);
+            Assert.AreEqual("Ty3", func.ReturnType.TypeName);
         }
 
         [TestMethod]
@@ -159,7 +159,7 @@ namespace Langlanglang_Tests
             Assert.AreEqual("String_MyMethod", extend.MangledName);
             Assert.AreEqual(0, extend.Params.Count);
             Assert.IsFalse(extend.UsesThisPtr);
-            Assert.AreEqual(extend.ReturnType, "void");
+            Assert.AreEqual(extend.ReturnType.TypeName, "void");
         }
 
         [TestMethod]
@@ -172,7 +172,7 @@ namespace Langlanglang_Tests
             Assert.AreEqual("String_MyMethod_Stringp", extend.MangledName);
             Assert.AreEqual(1, extend.Params.Count);
             Assert.IsTrue(extend.UsesThisPtr);
-            Assert.AreEqual(extend.ReturnType, "void");
+            Assert.AreEqual(extend.ReturnType.TypeName, "void");
         }
 
         [TestMethod]
@@ -185,7 +185,7 @@ namespace Langlanglang_Tests
             Assert.AreEqual("String_MyMethod_Number_Number", extend.MangledName);
             Assert.AreEqual(2, extend.Params.Count);
             Assert.IsFalse(extend.UsesThisPtr);
-            Assert.AreEqual("String", extend.ReturnType);
+            Assert.AreEqual("String", extend.ReturnType.TypeName);
         }
 
         [TestMethod]
@@ -198,8 +198,8 @@ namespace Langlanglang_Tests
             Assert.AreEqual("String_Ctor_Stringp", extend.MangledName);
             Assert.AreEqual(1, extend.Params.Count);
             Assert.IsTrue(extend.UsesThisPtr);
-            Assert.AreEqual("void", extend.ReturnType);
-            Assert.AreEqual(0, extend.ReturnPtrDepth);
+            Assert.AreEqual("void", extend.ReturnType.TypeName);
+            Assert.AreEqual(0, extend.ReturnType.PointerDepth);
         }
 
         [TestMethod]
@@ -212,8 +212,8 @@ namespace Langlanglang_Tests
             Assert.AreEqual("String_Dtor_Stringp", extend.MangledName);
             Assert.AreEqual(1, extend.Params.Count);
             Assert.IsTrue(extend.UsesThisPtr);
-            Assert.AreEqual("void", extend.ReturnType);
-            Assert.AreEqual(0, extend.ReturnPtrDepth);
+            Assert.AreEqual("void", extend.ReturnType.TypeName);
+            Assert.AreEqual(0, extend.ReturnType.PointerDepth);
         }
 
         [TestMethod]
@@ -225,7 +225,8 @@ namespace Langlanglang_Tests
             Assert.AreEqual("someFunc", foreign.Name);
             Assert.AreEqual("someFunc", foreign.CName);
             Assert.AreEqual(0, foreign.Params.Count);
-            Assert.AreEqual("void", foreign.ReturnType);
+            Assert.AreEqual("void", foreign.ReturnType.TypeName);
+            Assert.AreEqual(0, foreign.ReturnType.PointerDepth);
             Assert.IsFalse(foreign.IsVarArgs);
         }
 
@@ -238,7 +239,8 @@ namespace Langlanglang_Tests
             Assert.AreEqual("getchar", foreign.Name);
             Assert.AreEqual("getchar", foreign.CName);
             Assert.AreEqual(0, foreign.Params.Count);
-            Assert.AreEqual("i32", foreign.ReturnType);
+            Assert.AreEqual("i32", foreign.ReturnType.TypeName);
+            Assert.AreEqual(0, foreign.ReturnType.PointerDepth);
             Assert.IsFalse(foreign.IsVarArgs);
         }
 
@@ -251,7 +253,8 @@ namespace Langlanglang_Tests
             Assert.AreEqual("printf", foreign.Name);
             Assert.AreEqual("printf", foreign.CName);
             Assert.AreEqual(1, foreign.Params.Count);
-            Assert.AreEqual("i32", foreign.ReturnType);
+            Assert.AreEqual("i32", foreign.ReturnType.TypeName);
+            Assert.AreEqual(0, foreign.ReturnType.PointerDepth);
             Assert.IsTrue(foreign.IsVarArgs);
         }
 
@@ -264,7 +267,8 @@ namespace Langlanglang_Tests
             Assert.AreEqual("p", foreign.Name);
             Assert.AreEqual("printf", foreign.CName);
             Assert.AreEqual(1, foreign.Params.Count);
-            Assert.AreEqual("i32", foreign.ReturnType);
+            Assert.AreEqual("i32", foreign.ReturnType.TypeName);
+            Assert.AreEqual(0, foreign.ReturnType.PointerDepth);
             Assert.IsTrue(foreign.IsVarArgs);
         }
 
@@ -631,10 +635,10 @@ namespace Langlanglang_Tests
             Assert.AreEqual(1, ast.Roots.Count);
             var decl = ast.Roots[0] as AstDeclaration;
             Assert.AreEqual("x", decl.Name);
-            Assert.AreEqual("int", decl.Type);
-            Assert.AreEqual(1, decl.PointerDepth);
+            Assert.AreEqual("int", decl.Type.TypeName);
+            Assert.AreEqual(1, decl.Type.PointerDepth);
             Assert.IsTrue(decl.IsFixedArray);
-            Assert.AreEqual(decl.FixedArraySize, 45);
+            Assert.AreEqual(decl.Type.FixedArraySize, 45);
         }
 
         [TestMethod]
@@ -644,10 +648,10 @@ namespace Langlanglang_Tests
             Assert.AreEqual(1, ast.Roots.Count);
             var decl = ast.Roots[0] as AstDeclaration;
             Assert.AreEqual("x", decl.Name);
-            Assert.AreEqual("int", decl.Type);
-            Assert.AreEqual(2, decl.PointerDepth);
+            Assert.AreEqual("int", decl.Type.TypeName);
+            Assert.AreEqual(2, decl.Type.PointerDepth);
             Assert.IsTrue(decl.IsFixedArray);
-            Assert.AreEqual(decl.FixedArraySize, 45);
+            Assert.AreEqual(decl.Type.FixedArraySize, 45);
         }
 
         [TestMethod]
@@ -658,10 +662,10 @@ namespace Langlanglang_Tests
             var @struct = ast.Roots[0] as AstStruct;
             var decl = @struct.Members[0];
             Assert.AreEqual("x", decl.Name);
-            Assert.AreEqual("int", decl.Type);
-            Assert.AreEqual(2, decl.PointerDepth);
+            Assert.AreEqual("int", decl.Type.TypeName);
+            Assert.AreEqual(2, decl.Type.PointerDepth);
             Assert.IsTrue(decl.IsFixedArray);
-            Assert.AreEqual(decl.FixedArraySize, 45);
+            Assert.AreEqual(decl.Type.FixedArraySize, 45);
         }
 
         [TestMethod]
@@ -672,10 +676,10 @@ namespace Langlanglang_Tests
             var @struct = ast.Roots[0] as AstStruct;
             var decl = @struct.Members[0];
             Assert.AreEqual("x", decl.Name);
-            Assert.AreEqual("int", decl.Type);
-            Assert.AreEqual(1, decl.PointerDepth);
+            Assert.AreEqual("int", decl.Type.TypeName);
+            Assert.AreEqual(1, decl.Type.PointerDepth);
             Assert.IsTrue(decl.IsFixedArray);
-            Assert.AreEqual(decl.FixedArraySize, 45);
+            Assert.AreEqual(decl.Type.FixedArraySize, 45);
         }
     }
 }

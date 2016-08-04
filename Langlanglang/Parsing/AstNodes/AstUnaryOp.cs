@@ -49,7 +49,7 @@ namespace Langlanglang.Parsing.AstNodes
             if (Op == TokenType.New)
             {
                 var ty = Expression.TryInferType(cil);
-                return ty.Clone(ty.PointerDepth + 1);
+                return ty.Clone(ty.PointerDepth + 1, ty.IsAReference);
             }
             return Expression.TryInferType(cil);
         }
@@ -71,7 +71,8 @@ namespace Langlanglang.Parsing.AstNodes
                 @sizeof
             });
             var tmp = NameGenerator.NewTemp();
-            var decl = new AstDeclaration(SourceInfo, tmp, ctorId.Name, 1, malloc);
+            var tmpType = new AstType(SourceInfo, ctorId.Name, 1, 0, false, false);
+            var decl = new AstDeclaration(SourceInfo, tmp, tmpType, malloc);
             var rewrite = new List<CILNode>();
             var cdecl = decl.ToCILVariableDeclAndDecl(cil);
             cil.DeclareLocalVariable(cdecl);

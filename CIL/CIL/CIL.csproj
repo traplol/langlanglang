@@ -45,6 +45,7 @@
     <Compile Include="CILNodes\CILBranch.cs" />
     <Compile Include="CILNodes\CILCall.cs" />
     <Compile Include="CILNodes\CILCondition.cs" />
+    <Compile Include="CILNodes\CILDereference.cs" />
     <Compile Include="CILNodes\CILExpressionList.cs" />
     <Compile Include="CILNodes\CILFixedArray.cs" />
     <Compile Include="CILNodes\CILFloatingPoint.cs" />

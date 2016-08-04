@@ -22,6 +22,7 @@ namespace Langlanglang.Compiler
 
         public static Ast Ast { get; private set; }
         public static readonly LllSymbolTable SymTable;
+        public static AstFunc CurrentFunction { get; set; }
 
         private static readonly Ast _program;
 

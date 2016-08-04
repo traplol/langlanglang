@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CIL.SymbolStore;
 
 namespace CIL.CILNodes
 {
@@ -21,7 +22,8 @@ namespace CIL.CILNodes
         public override string TryInferType(CIntermediateLang cil)
         {
             // TODO: Remove a level of pointers
-            return Pointer.TryInferType(cil);
+            var ty = Pointer.TryInferType(cil);
+            return CTypes.DereferenceType(ty);
         }
 
         public override void Codegen(CIntermediateLang cil, IndentingStringBuilder sb)

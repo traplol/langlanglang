@@ -12,8 +12,8 @@ namespace Langlanglang.TypeChecking
         private Dictionary<string, AstDeclaration> _members;
         public AstStruct Struct { get; }
 
-        public LllStruct(string cName, AstStruct @struct, int pointerDepth = 0)
-            : base(@struct.Name, cName, false, pointerDepth)
+        public LllStruct(string cName, AstStruct @struct, bool isAReference, int pointerDepth = 0)
+            : base(@struct.Name, cName, false, isAReference, pointerDepth)
         {
             Struct = @struct;
             _members = new Dictionary<string, AstDeclaration>();
@@ -33,12 +33,12 @@ namespace Langlanglang.TypeChecking
             _members.Add(member.Name, member);
         }
 
-        public override LllType Clone(int withPtrDepth)
+        public override LllType Clone(int withPtrDepth, bool isAReference)
         {
-            return new LllStruct(CName, Struct, withPtrDepth)
+            return new LllStruct(CName, Struct, isAReference, withPtrDepth)
             {
                 _members = _members,
-                Extensions = Extensions
+                Extensions = Extensions,
             };
         }
     }

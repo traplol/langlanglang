@@ -37,10 +37,15 @@ namespace Langlanglang_Driver
             Console.WriteLine("Compiled to C in: {0}ms", sw.ElapsedMilliseconds);
 
             var fileNoExt = fullPath.Name;
+            var extPos = fileNoExt.LastIndexOf(".lll");
+            if (extPos > 0)
+            {
+                fileNoExt = fileNoExt.Remove(extPos);
+            }
             var outDir = fullPath.DirectoryName + "\\output";
             var exePath = outDir + "\\" + fileNoExt + ".exe";
             var objDir = outDir + "\\obj";
-            var objPath = objDir + "\\" + fileNoExt + "obj";
+            var objPath = objDir + "\\" + fileNoExt + ".obj";
             var cfilePath = outDir + "\\" + fileNoExt + ".c";
             Directory.CreateDirectory(outDir);
             Directory.CreateDirectory(objDir);

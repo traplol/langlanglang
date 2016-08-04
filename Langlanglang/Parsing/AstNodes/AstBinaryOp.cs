@@ -88,15 +88,24 @@ namespace Langlanglang.Parsing.AstNodes
                 return ToCILCondition(cil);
             }
             var lhsTy = Lhs.TryInferType(cil);
+            var lhs = lhsTy.IsAReference 
+                ? new CILDereference(Lhs.SourceInfo, Lhs.ToCILExpression(cil)) 
+                : Lhs.ToCILExpression(cil);
+
+
             var rhsTy = Rhs.TryInferType(cil);
+            var rhs = rhsTy.IsAReference 
+                ? new CILDereference(Rhs.SourceInfo, Rhs.ToCILExpression(cil)) 
+                : Rhs.ToCILExpression(cil);
+
             // primitives, just use the builtin operators
             if (lhsTy.IsPrimitive && rhsTy.IsPrimitive)
             {
                 return new CILBinaryOp(
                     SourceInfo,
-                    Lhs.ToCILExpression(cil),
+                    lhs,
                     _binOpInfo[Op].CILOpType,
-                    Rhs.ToCILExpression(cil));
+                    rhs);
             }
 
             // not primitive, make a call to lhs.__op__(rhs);

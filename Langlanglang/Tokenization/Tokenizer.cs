@@ -130,6 +130,7 @@ namespace Langlanglang.Tokenization
             tokenizer.ParserContainer.AddParser(9, TokenType.Delete, DeleteRegex);
             tokenizer.ParserContainer.AddParser(9, TokenType.In, InRegex);
             tokenizer.ParserContainer.AddParser(9, TokenType.As, AsRegex);
+            tokenizer.ParserContainer.AddParser(9, TokenType.Ref, RefRegex);
 
             tokenizer.ParserContainer.AddParser(10, TokenType.Foreach, ForeachRegex);
             tokenizer.ParserContainer.AddParser(10, TokenType.Foreign, ForeignRegex);
@@ -203,6 +204,7 @@ namespace Langlanglang.Tokenization
         private static readonly Regex InRegex = new Regex(@"\G(in)" + Delim);
         private static readonly Regex ForeignRegex = new Regex(@"\G(foreign)" + Delim);
         private static readonly Regex AsRegex = new Regex(@"\G(as)" + Delim);
+        private static readonly Regex RefRegex = new Regex(@"\G(ref)" + Delim);
 
     }
 }

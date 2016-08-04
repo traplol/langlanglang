@@ -28,7 +28,7 @@ namespace Langlanglang.Parsing.AstNodes
         public void CDecl(CIntermediateLang cil)
         {
             var cName = NameGenerator.UniqName("struc", Name);
-            LllCompiler.SymTable.AddSymbol(new LllStruct(cName, this));
+            LllCompiler.SymTable.AddSymbol(new LllStruct(cName, this, false));
             _cilStruct = cil.CreateStruct(SourceInfo, cName);
         }
 
@@ -38,15 +38,15 @@ namespace Langlanglang.Parsing.AstNodes
             foreach (var m in Members)
             {
                 lllStruct.AddMember(m);
-                var mType = LllCompiler.SymTable.LookupType(m.Type);
+                var mType = LllCompiler.SymTable.LookupType(m.Type.TypeName);
                 var cType = cil.SymTable.LookupType(mType.CName);
                 CILVariableDecl member;
                 if (m.IsFixedArray)
                 {
-                    member = new CILFixedArray(m.SourceInfo, cType, m.PointerDepth, m.Name, m.FixedArraySize);
+                    member = new CILFixedArray(m.SourceInfo, cType, m.Type.PointerDepth, m.Name, m.Type.FixedArraySize);
                 }
                 else {
-                    member = new CILVariableDecl(m.SourceInfo, cType, m.PointerDepth, m.Name);
+                    member = new CILVariableDecl(m.SourceInfo, cType, m.Type.PointerDepth, m.Name);
                 }
                 _cilStruct.AddMember(member);
             }

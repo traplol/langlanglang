@@ -284,7 +284,7 @@ namespace Langlanglang.Parsing
             var body = ParseBody(tks);
             tks.Expect(TokenType.RCurBracket);
 
-            var pre = new AstDeclaration(si, ident, null, 0, @from);
+            var pre = new AstDeclaration(si, ident, null, @from);
             var condOp = (updateOp == TokenType.Plus)
                     ? TokenType.LessThanEquals 
                     : TokenType.GreaterThanEquals;
@@ -396,20 +396,13 @@ namespace Langlanglang.Parsing
             bool isVarArgs = tks.Accept(TokenType.DotDotDot) != null;
             tks.Expect(TokenType.RParen);
 
-            string returnType = "void";
-            var ptrDepth = 0;
-            if (tks.Accept(TokenType.RightArrow) != null)
-            {
-                returnType = tks.Expect(TokenType.Ident).StringValue;
-                while (tks.Accept(TokenType.Star) != null)
-                {
-                    ptrDepth++;
-                }
-            }
+            var retType = tks.Accept(TokenType.RightArrow) != null 
+                ? ParseType(tks, false, false) 
+                : new AstType(si, "void", 0, 0, false, false);
 
             tks.Expect(TokenType.Semicolon);
 
-            return new AstForeign(si, paramList, name, cname, returnType, ptrDepth, isVarArgs);
+            return new AstForeign(si, paramList, name, cname, retType, isVarArgs);
         }
 
         // <func>               ::= 'func' <ident> '(' <func-param-list> ')' '{' <body> '}'
@@ -423,21 +416,14 @@ namespace Langlanglang.Parsing
             var paramList = ParseFuncParamList(tks);
             tks.Expect(TokenType.RParen);
 
-            string returnType = "void";
-            var ptrDepth = 0;
-            if (tks.Accept(TokenType.RightArrow) != null)
-            {
-                returnType = tks.Expect(TokenType.Ident).StringValue;
-                while (tks.Accept(TokenType.Star) != null)
-                {
-                    ptrDepth++;
-                }
-            }
+            var retType = tks.Accept(TokenType.RightArrow) != null 
+                ? ParseType(tks, false, true) 
+                : new AstType(si, "void", 0, 0, false, false);
 
             tks.Expect(TokenType.LCurBracket);
             var body = ParseBody(tks);
             tks.Expect(TokenType.RCurBracket);
-            return new AstFunc(si, ident.StringValue, paramList, returnType, ptrDepth, body);
+            return new AstFunc(si, ident.StringValue, paramList, retType, body);
         }
 
         private static List<AstDeclaration> ParseFuncParamList(TokenStream tks)
@@ -450,14 +436,9 @@ namespace Langlanglang.Parsing
                 if (ident != null)
                 {
                     tks.Expect(TokenType.Colon);
-                    var isGeneric = tks.Accept(TokenType.Hash) != null;
-                    var type = tks.Expect(TokenType.Ident).StringValue;
-                    int ptrDepth = 0;
-                    while (tks.Accept(TokenType.Star) != null)
-                    {
-                        ptrDepth++;
-                    }
-                    parameters.Add(new AstDeclaration(si, ident.StringValue, type, ptrDepth, null, isGeneric));
+
+                    var parType = ParseType(tks, false, true);
+                    parameters.Add(new AstDeclaration(si, ident.StringValue, parType, null));
                     if (tks.Accept(TokenType.Comma) != null)
                     {
                         continue;
@@ -499,7 +480,47 @@ namespace Langlanglang.Parsing
                 body.Add(expr);
             }
             return body;
-        } 
+        }
+
+        // <type>           ::= '#' ? <ident> '*'* '[' <integer> ']'
+        //                  ::= 'ref' '#'? <ident> '*'* '[' <integer> ']'
+        private static AstType ParseType(TokenStream tks, bool allowFixedArray, bool allowGeneric)
+        {
+            var si = tks.Peek().SourceInfo;
+            bool isAReference = tks.Accept(TokenType.Ref) != null;
+            bool isGeneric = tks.Accept(TokenType.Hash) != null;
+            var ident = tks.Expect(TokenType.Ident).StringValue;
+            var ptrDepth = 0;
+            while (tks.Accept(TokenType.Star) != null)
+            {
+                ++ptrDepth;
+            }
+            int fixedSize = 0;
+            if (tks.Accept(TokenType.LSquBracket) != null)
+            {
+                var size = tks.Expect(TokenType.Number);
+                if (!size.IsIntegral())
+                {
+                    throw new UnexpectedTokenException(
+                        TokenType.Number, 
+                        string.Format(
+                            "Error: {0} : Expected integral number, got `{1}'",
+                            size.SourceInfo, size.StringValue));
+                }
+                ++ptrDepth;
+                fixedSize = (int)size.ToDecimal();
+                tks.Expect(TokenType.RSquBracket);
+            }
+            if (!allowFixedArray && fixedSize != 0)
+            {
+                throw new NotImplementedException(string.Format("{0} : Fixed array not allowed here.", si));
+            }
+            if (!allowGeneric && isGeneric)
+            {
+                throw new NotImplementedException(string.Format("{0} : Generic type not allowed here.", si));
+            }
+            return new AstType(si, ident, ptrDepth, fixedSize, isAReference, isGeneric);
+        }
 
         private static AstStruct ParseStruct(TokenStream tks)
         {
@@ -512,30 +533,11 @@ namespace Langlanglang.Parsing
             {
                 var memberId = tks.Expect(TokenType.Ident).StringValue;
                 tks.Expect(TokenType.Colon);
-                var memberType = tks.Expect(TokenType.Ident).StringValue;
-                int ptrDepth = 0;
-                int fixedSize = 0;
-                while (tks.Accept(TokenType.Star) != null)
-                {
-                    ptrDepth++;
-                }
-                if (tks.Accept(TokenType.LSquBracket) != null)
-                {
-                    var size = tks.Expect(TokenType.Number);
-                    if (!size.IsIntegral())
-                    {
-                        throw new UnexpectedTokenException(
-                            TokenType.Number, 
-                            string.Format(
-                                "Error: {0} : Expected integral number, got `{1}'",
-                                size.SourceInfo, size.StringValue));
-                    }
-                    ++ptrDepth;
-                    fixedSize = (int)size.ToDecimal();
-                    tks.Expect(TokenType.RSquBracket);
-                }
+
+                var membType = ParseType(tks, true, true);
+
                 tks.Expect(TokenType.Semicolon);
-                members.Add(new AstDeclaration(si, memberId, memberType, ptrDepth, null, fixedSize));
+                members.Add(new AstDeclaration(si, memberId, membType, null));
             }
             return new AstStruct(si, ident, members);
         }
@@ -561,7 +563,8 @@ namespace Langlanglang.Parsing
             tks.Expect(TokenType.LCurBracket);
             var body = ParseBody(tks);
             tks.Expect(TokenType.RCurBracket);
-            return new AstExtend(si, typeToExtend, "Dtor", usesThisPtr, @params, "void", 0, body);
+            var retType = new AstType(si, "void", 0, 0, false, false);
+            return new AstExtend(si, typeToExtend, "Dtor", true, @params, retType, body);
         }
 
         private static AstExtend ParseConstructor(TokenStream tks)
@@ -572,11 +575,16 @@ namespace Langlanglang.Parsing
             tks.Expect(TokenType.LParen);
             var @params = new List<AstDeclaration>();
             var usesThisPtr = ParseExtendParamList(tks, typeToExtend, @params);
+            if (!usesThisPtr)
+            {
+                throw new NotImplementedException("TODO: Exception for destructor with no thisptr");
+            }
             tks.Expect(TokenType.RParen);
             tks.Expect(TokenType.LCurBracket);
             var body = ParseBody(tks);
             tks.Expect(TokenType.RCurBracket);
-            return new AstExtend(si, typeToExtend, "Ctor", usesThisPtr, @params, null, 0, body);
+            var retType = new AstType(si, "void", 0, 0, false, false);
+            return new AstExtend(si, typeToExtend, "Ctor", true, @params, retType, body);
         }
 
         private static bool ParseExtendParamList(TokenStream tks, string typeToExtend, List<AstDeclaration> @params)
@@ -587,31 +595,25 @@ namespace Langlanglang.Parsing
             if (firstParam != null)
             {
                 // no colon -> no type decl -> using thisptr
-                var firstParamType = typeToExtend;
-                int ptrDepth = 0;
+                AstType firstParType;
                 if (tks.Accept(TokenType.Colon) == null)
                 {
-                    ptrDepth = 1;
                     usesThisPtr = true;
-                    //@params.Add(new AstDeclaration(firstParam.StringValue, typeToExtend, null));
                     if (tks.Peek().Type != TokenType.RParen)
                     {
                         tks.Expect(TokenType.Comma);
                     }
+                    firstParType = new AstType(si, typeToExtend, 1, 0, false, false);
                 }
                 else
                 {
-                    firstParamType = tks.Expect(TokenType.Ident).StringValue;
-                    while (tks.Accept(TokenType.Star) != null)
-                    {
-                        ptrDepth++;
-                    }
+                    firstParType = ParseType(tks, false, true);
                     if (tks.Peek().Type != TokenType.RParen)
                     {
                         tks.Expect(TokenType.Comma);
                     }
                 }
-                @params.Add(new AstDeclaration(si, firstParam.StringValue, firstParamType, ptrDepth, null));
+                @params.Add(new AstDeclaration(si, firstParam.StringValue, firstParType, null));
                 var otherParams = ParseFuncParamList(tks);
                 @params.AddRange(otherParams);
             }
@@ -642,21 +644,14 @@ namespace Langlanglang.Parsing
             var usesThisPtr = ParseExtendParamList(tks, typeToExtend, @params);
             tks.Expect(TokenType.RParen);
 
-            var returnType = "void";
-            int retPtrDepth = 0;
-            if (tks.Accept(TokenType.RightArrow) != null)
-            {
-                returnType = tks.Expect(TokenType.Ident).StringValue;
-                while (tks.Accept(TokenType.Star) != null)
-                {
-                    retPtrDepth++;
-                }
-            }
+            var retType = tks.Accept(TokenType.RightArrow) != null
+                ? ParseType(tks, false, true)
+                : new AstType(si, "void", 0, 0, false, false);
 
             tks.Expect(TokenType.LCurBracket);
             var body = ParseBody(tks);
             tks.Expect(TokenType.RCurBracket);
-            return new AstExtend(si, typeToExtend, name, usesThisPtr, @params, returnType, retPtrDepth, body);
+            return new AstExtend(si, typeToExtend, name, usesThisPtr, @params, retType, body);
         }
 
         // <expr>           ::= <decl-assign>
@@ -716,32 +711,12 @@ namespace Langlanglang.Parsing
                 tks.Restore(save);
                 return null;
             }
-            string varType = null;
-            int ptrDepth = 0;
-            var type = tks.Accept(TokenType.Ident);
-            if (type != null)
+            AstType varType = null;
+            if (tks.Peek().Type != TokenType.Assign)
             {
-                varType = type.StringValue;
-                while (tks.Accept(TokenType.Star) != null)
-                {
-                    ptrDepth++;
-                }
+                varType = ParseType(tks, true, false);
             }
-            int fixedArraySize = 0;
-            if (tks.Accept(TokenType.LSquBracket) != null)
-            {
-                var size = tks.Expect(TokenType.Number);
-                if (!size.IsIntegral())
-                {
-                    throw new UnexpectedTokenException(size.Type, 
-                        string.Format(
-                            "Error: {0} : Expected an integral value for an array size.", 
-                            size.SourceInfo));
-                }
-                tks.Expect(TokenType.RSquBracket);
-                fixedArraySize = (int) size.ToDecimal();
-                ptrDepth++;
-            }
+
             AstExpression rhs = null;
             if (tks.Accept(TokenType.Assign) != null)
             {
@@ -751,7 +726,7 @@ namespace Langlanglang.Parsing
                     throw new Exception("Expected expression on rhs of variable declaration");
                 }
             }
-            return new AstDeclaration(si, ident.StringValue, varType, ptrDepth, rhs, fixedArraySize);
+            return new AstDeclaration(si, ident.StringValue, varType, rhs);
         }
 
         private static List<AstExpression> ParseExpressionList(TokenStream tks)

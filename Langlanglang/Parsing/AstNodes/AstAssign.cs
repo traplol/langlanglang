@@ -23,6 +23,21 @@ namespace Langlanglang.Parsing.AstNodes
 
         public override CILExpression ToCILExpression(CIntermediateLang cil)
         {
+            var destTy = Destination.TryInferType(cil);
+            if (destTy.IsAReference)
+            {
+                return new CILAssignment(SourceInfo, 
+                    new CILDereference(SourceInfo, Destination.ToCILExpression(cil)),
+                    Expression.ToCILExpression(cil));
+            }
+            var srcTy = Expression.TryInferType(cil);
+            if (srcTy.IsAReference)
+            {
+                return new CILAssignment(
+                    SourceInfo, 
+                    Destination.ToCILExpression(cil), 
+                    new CILDereference(SourceInfo, Expression.ToCILExpression(cil)));
+            }
             return new CILAssignment(
                 SourceInfo, 
                 Destination.ToCILExpression(cil), 

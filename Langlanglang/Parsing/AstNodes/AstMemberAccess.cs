@@ -33,8 +33,7 @@ namespace Langlanglang.Parsing.AstNodes
             if (from.Extensions.ContainsKey(MemberIdent))
             {
                 var ext = from.Extensions[MemberIdent];
-                var retType = LllCompiler.SymTable.LookupType(ext.ReturnType);
-                return new LllType(retType, ext.ReturnPtrDepth);
+                return ext.ReturnType.ToLllType();
             }
             var from_ = from as LllStruct;
             if (from_ == null)
@@ -42,8 +41,8 @@ namespace Langlanglang.Parsing.AstNodes
                 throw new NotImplementedException("TODO");
             }
             var member = from_.GetMember(MemberIdent);
-            var membType = LllCompiler.SymTable.LookupType(member.Type);
-            return membType.Clone(member.PointerDepth);
+            var membType = LllCompiler.SymTable.LookupType(member.Type.TypeName);
+            return membType.Clone(member.Type.PointerDepth, membType.IsAReference);
         }
     }
 }

@@ -105,5 +105,15 @@ namespace CIL.SymbolStore
             }
             throw new NotImplementedException("TODO: Exception for trying to convert a non-number to a number");
         }
+
+        public static string DereferenceType(string type)
+        {
+            var starIdx = type.IndexOf("*");
+            if (starIdx < 0)
+            {
+                throw new NotImplementedException("Exception for dereferencing non-pointer type.");
+            }
+            return type.Remove(starIdx, 1);
+        }
     }
 }

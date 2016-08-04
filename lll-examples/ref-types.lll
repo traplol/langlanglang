@@ -1,0 +1,3 @@
+func test(arr: int*, n: int) -> ref int {
+    return arr[n];
+}

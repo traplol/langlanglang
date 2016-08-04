@@ -23,20 +23,35 @@ namespace Langlanglang.Parsing.AstNodes
 
         public override CILExpression ToCILExpression(CIntermediateLang cil)
         {
-            if (Subscript.Count != 1)
+            var ty = From.TryInferType(cil);
+            if (ty.IsPrimitive)
             {
-                throw new NotImplementedException();
+                if (Subscript.Count != 1)
+                {
+                    throw new NotImplementedException();
+                }
+                return new CILIndexAccess(
+                    SourceInfo,
+                    From.ToCILExpression(cil),
+                    Subscript[0].ToCILExpression(cil));
             }
-            return new CILIndexAccess(
-                SourceInfo, 
-                From.ToCILExpression(cil), 
-                Subscript[0].ToCILExpression(cil));
+            return CreateCallAst().ToCILExpression(cil);
         }
 
         public override LllType TryInferType(CIntermediateLang cil)
         {
             var ty = From.TryInferType(cil);
-            return ty.Clone(ty.PointerDepth - 1);
+            if (ty.IsPrimitive)
+            {
+                return ty.Clone(ty.PointerDepth - 1, ty.IsAReference);
+            }
+            return CreateCallAst().TryInferType(cil);
+        }
+
+        private AstCall CreateCallAst()
+        {
+            var membAccess = new AstMemberAccess(SourceInfo, From, "__index__");
+            return new AstCall(SourceInfo, membAccess, Subscript);
         }
     }
 }

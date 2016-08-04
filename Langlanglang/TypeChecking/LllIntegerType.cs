@@ -12,8 +12,8 @@ namespace Langlanglang.TypeChecking
         public int Size { get; }
         public bool Signed { get; }
 
-        private LllIntegerType(string name, string cname, int size, bool signed)
-            : base(name, cname, true, 0)
+        private LllIntegerType(string name, string cname, int size, bool signed, bool isAReference)
+            : base(name, cname, true, isAReference, 0)
         {
             Size = size;
             Signed = signed;
@@ -26,10 +26,9 @@ namespace Langlanglang.TypeChecking
             {
                 return base.Equals(obj);
             }
-
-            return Signed == other.Signed
-                   && Size == other.Size
-                   && PointerDepth == other.PointerDepth;
+            return base.Equals(obj)
+                   && Signed == other.Signed
+                   && Size == other.Size;
         }
 
         public override int GetHashCode()
@@ -77,9 +76,9 @@ namespace Langlanglang.TypeChecking
             return tt.Size >= Size;
         }
 
-        public override LllType Clone(int withPtrDepth)
+        public override LllType Clone(int withPtrDepth, bool isAReference)
         {
-            return new LllIntegerType(Name, CName, Size, Signed)
+            return new LllIntegerType(Name, CName, Size, Signed, isAReference)
             {
                 PointerDepth = withPtrDepth
             };
@@ -90,16 +89,16 @@ namespace Langlanglang.TypeChecking
             return new List<LllType> {Char, I8, U8, I16, U16, I32, U32, I64, U64};
         }
 
-        public static readonly LllIntegerType Char = new LllIntegerType("char", "char", 1, true);
+        public static readonly LllIntegerType Char = new LllIntegerType("char", "char", 1, true, false);
 
-        public static readonly LllIntegerType I8 = new LllIntegerType("i8", "int8_t", 1, true);
-        public static readonly LllIntegerType I16 = new LllIntegerType("i16", "int16_t", 2, true);
-        public static readonly LllIntegerType I32 = new LllIntegerType("i32", "int32_t", 4, true);
-        public static readonly LllIntegerType I64 = new LllIntegerType("i64", "int64_t", 8, true);
+        public static readonly LllIntegerType I8 = new LllIntegerType("i8", "int8_t", 1, true, false);
+        public static readonly LllIntegerType I16 = new LllIntegerType("i16", "int16_t", 2, true, false);
+        public static readonly LllIntegerType I32 = new LllIntegerType("i32", "int32_t", 4, true, false);
+        public static readonly LllIntegerType I64 = new LllIntegerType("i64", "int64_t", 8, true, false);
 
-        public static readonly LllIntegerType U8 = new LllIntegerType("u8", "uint8_t", 1, false);
-        public static readonly LllIntegerType U16 = new LllIntegerType("u16", "uint16_t", 2, false);
-        public static readonly LllIntegerType U32 = new LllIntegerType("u32", "uint32_t", 4, false);
-        public static readonly LllIntegerType U64 = new LllIntegerType("u64", "uint64_t", 8, false);
+        public static readonly LllIntegerType U8 = new LllIntegerType("u8", "uint8_t", 1, false, false);
+        public static readonly LllIntegerType U16 = new LllIntegerType("u16", "uint16_t", 2, false, false);
+        public static readonly LllIntegerType U32 = new LllIntegerType("u32", "uint32_t", 4, false, false);
+        public static readonly LllIntegerType U64 = new LllIntegerType("u64", "uint64_t", 8, false, false);
     }
 }

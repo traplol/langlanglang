@@ -26,18 +26,34 @@ namespace Langlanglang.Parsing.AstNodes
         public override CILExpression ToCILExpression(CIntermediateLang cil)
         {
             var args = Args.Select(a => a.ToCILExpression(cil)).ToList();
+            for (int i = 0; i < Args.Count; ++i)
+            {
+                var arg = Args[i];
+                if (arg.TryInferType(cil).IsAReference)
+                {
+                    args[i] = new CILDereference(arg.SourceInfo, args[i]);
+                }
+            }
             var ident = Callee as AstIdent;
             if (ident != null)
             {
                 ident.Name = FixIdent(cil, ident.Name);
                 var sym = LllCompiler.SymTable.LookupSymbol(ident.Name) as LllFunction;
                 var func = sym?.Extra as AstFunc;
-                if (func != null && func.IsGeneric)
+                if (func != null)
                 {
-                    var actual = CompileGeneric(cil, func);
-//                    var actual = func.ConvertFromGenericToActual(cil, Args, SourceInfo);
-//                    LllCompiler.Ast.CompileGeneric(actual);
-                    return new CILCall(SourceInfo, new CILIdent(SourceInfo, actual.CILFunction.Name), args);
+                    for (int i = 0; i < func.Params.Count; ++i)
+                    {
+                        var p = func.Params[i];
+                        if (!p.Type.IsAReference) { continue; }
+                        var a = args[i];
+                        args[i] = new CILReference(a.SourceInfo, a);
+                    }
+                    if (func.IsGeneric)
+                    {
+                        var actual = CompileGeneric(cil, func);
+                        return new CILCall(SourceInfo, new CILIdent(SourceInfo, actual.CILFunction.Name), args);
+                    }
                 }
             }
 
@@ -59,6 +75,13 @@ namespace Langlanglang.Parsing.AstNodes
                         //ext = ext.ConvertFromGenericToActual(cil, Args, SourceInfo) as AstExtend;
                         //LllCompiler.Ast.CompileGeneric(ext);
                         ext = CompileGeneric(cil, ext) as AstExtend;
+                    }
+                    for (int i = 0; i < ext.Params.Count; ++i)
+                    {
+                        var p = ext.Params[i];
+                        if (!p.Type.IsAReference) { continue; }
+                        var a = args[i];
+                        args[i] = new CILReference(a.SourceInfo, a);
                     }
                     var extId = new AstIdent(SourceInfo, ext.MangledName);
                     return new CILCall(SourceInfo, extId.ToCILExpression(cil), args);
@@ -94,7 +117,8 @@ namespace Langlanglang.Parsing.AstNodes
                     {
                         ext = CompileGeneric(cil, ext);
                     }
-                    return LllCompiler.SymTable.LookupType(ext.ReturnType).Clone(ext.ReturnPtrDepth);
+                    return ext.GetRealReturnType();
+                    //return LllCompiler.SymTable.LookupType(ext.ReturnType).Clone(ext.ReturnPtrDepth);
                 }
             }
             var ident = Callee as AstIdent;
@@ -106,13 +130,9 @@ namespace Langlanglang.Parsing.AstNodes
                 {
                     if (func.IsGeneric)
                     {
-                        var compiled = CompileGeneric(cil, func);
-                        return compiled.GetRealReturnType();
+                        func = CompileGeneric(cil, func);
                     }
-                    else
-                    {
-                        return func.GetRealReturnType();
-                    }
+                    return func.GetRealReturnType();
                 }
             }
             return Callee.TryInferType(cil);

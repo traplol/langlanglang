@@ -1,15 +1,28 @@
+foreign func memset(ptr: void*, val: int, n: size) -> void*;
 
-
-n := 5;
-
-x := new int[n];
-
-printf("setting values\n");
-for i in 0..n-1 {
-    x[i] = i;
+struct Array {
+    length: size;
+    ptr: int*;
 }
 
-printf("reading values\n");
-for i in 0..n-1 {
-    printf("%d\n", x[i]);
+extend Array(this, length: size) {
+    this.length = length;
+    this.ptr = new int[length];
+    for i in 0..length-1 {
+        this.ptr[i] = i;
+    }
 }
+
+extend Array __index__(this, idx: size) -> ref int {
+    return this.ptr[idx];
+}
+
+arr := new Array(42);
+
+arr[10] = 123456;
+printf("%d\n", arr[10]);
+x := arr[10];
+printf("%d\n", x);
+x = 42;
+printf("%d\n", x);
+printf("%d\n", arr[10]);

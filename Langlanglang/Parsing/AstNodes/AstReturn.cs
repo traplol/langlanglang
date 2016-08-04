@@ -22,6 +22,11 @@ namespace Langlanglang.Parsing.AstNodes
 
         public override CILStatement ToCILStatement(CIntermediateLang cil)
         {
+            if (LllCompiler.CurrentFunction.ReturnType.IsAReference)
+            {
+                return new CILReturn(SourceInfo,
+                    new CILReference(SourceInfo, ExpressionToReturn.ToCILExpression(cil)));
+            }
             return new CILReturn(SourceInfo, ExpressionToReturn.ToCILExpression(cil));
         }
     }

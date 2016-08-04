@@ -15,6 +15,7 @@ namespace Langlanglang.TypeChecking
     {
         public bool IsPrimitive { get; }
         public int PointerDepth { get; protected set; }
+        public bool IsAReference { get; protected set; }
         public Dictionary<string, AstExtend> Extensions { get; protected set; }
 
         public bool IsPointer => PointerDepth > 0;
@@ -24,15 +25,17 @@ namespace Langlanglang.TypeChecking
         {
             IsPrimitive = copyFrom.IsPrimitive;
             Extensions = copyFrom.Extensions;
+            IsAReference = copyFrom.IsAReference;
             PointerDepth = pointerDepth;
         }
 
-        public LllType(string name, string cName, bool isPrimitive, int pointerDepth = 0)
+        public LllType(string name, string cName, bool isPrimitive, bool isAReference, int pointerDepth = 0)
             : base(name, name, cName)
         {
             IsPrimitive = isPrimitive;
             PointerDepth = pointerDepth;
             Extensions = new Dictionary<string, AstExtend>();
+            IsAReference = isAReference;
             //CtorAndDtor();
         }
 
@@ -45,9 +48,13 @@ namespace Langlanglang.TypeChecking
             //CtorAndDtor();
         }
 
-        public virtual LllType Clone(int withPtrDepth)
+        public virtual LllType Clone(int withPtrDepth, bool isAReference)
         {
-            return new LllType(this, withPtrDepth);
+            var ty = new LllType(this, withPtrDepth)
+            {
+                IsAReference = isAReference
+            };
+            return ty;
         }
 
         private void CtorAndDtor()
@@ -85,10 +92,9 @@ namespace Langlanglang.TypeChecking
                 true,
                 new List<AstDeclaration>()
                 {
-                    new AstDeclaration(si, "this", type, 1, null)
+                    new AstDeclaration(si, "this", new AstType(si, type, 1, 0, false, false), null)
                 },
-                "void",
-                0,
+                new AstType(si, "void", 0, 0, false, false), 
                 new List<AstNode>());
         }
 
@@ -108,7 +114,8 @@ namespace Langlanglang.TypeChecking
             {
                 return false;
             }
-            return Name == other.Name && PointerDepth == other.PointerDepth;
+            var tmpPtrDepth = IsAReference ? PointerDepth - 1 : PointerDepth;
+            return Name == other.Name && tmpPtrDepth == other.PointerDepth;
         }
 
         public virtual List<LllType> Select()

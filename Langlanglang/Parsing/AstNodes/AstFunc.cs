@@ -17,26 +17,27 @@ namespace Langlanglang.Parsing.AstNodes
         public List<AstDeclaration> Params { get; set; } 
         public string Name  { get; set; } 
         public string MangledName { get; set; }
-        public string ReturnType { get; set; }
-        public int ReturnPtrDepth { get; set; }
         public List<AstNode> Body { get; set; }
         public bool IsGeneric { get; set; }
-        public bool IsVoidReturn => ReturnType == "void";
+
+        public AstType ReturnType { get; set; }
 
         public CILFunction CILFunction { get; protected set; }
 
-        public AstFunc(SourceInfo si, string name, List<AstDeclaration> @params, string returnType, int retPtrDepth, List<AstNode> body)
+        public AstFunc(SourceInfo si, string name, List<AstDeclaration> @params, AstType returnType, List<AstNode> body)
             : base(si)
         {
-            //Name = GetMangledName(name, @params);
             Name = name;
             MangledName = GetMangledName(name, @params);
             Params = @params;
-            ReturnType = returnType ?? "void";
-            ReturnPtrDepth = retPtrDepth;
             Body = body;
+            ReturnType = returnType;
 
-            IsGeneric = @params.Any(p => p.IsGenericlyTyped);
+            IsGeneric = @params.Any(p => p.IsGeneric);
+            if (!IsGeneric && returnType.IsGeneric)
+            {
+                throw new NotImplementedException("Function cannot return generic type not defined in param list.");
+            }
         }
 
         public virtual void CDecl(CIntermediateLang cil)
@@ -55,11 +56,11 @@ namespace Langlanglang.Parsing.AstNodes
             LllCompiler.SymTable.AddSymbolAtGlobalScope(new LllFunction(cName, this));
             if (!IsGeneric)
             {
-                var retType = LllCompiler.SymTable.LookupType(ReturnType);
+                var retType = ReturnType.ToLllType();
                 CILFunction = cil.CreateFunction(
                     SourceInfo,
                     retType.CName,
-                    ReturnPtrDepth,
+                    retType.PointerDepth,
                     cName,
                     Params.Select(p => p.ToCILVariableDecl(cil)).ToList());
             }
@@ -67,7 +68,7 @@ namespace Langlanglang.Parsing.AstNodes
 
         public LllType GetRealReturnType()
         {
-            return LllCompiler.SymTable.LookupType(ReturnType)?.Clone(ReturnPtrDepth);
+            return ReturnType.ToLllType();
         }
 
         public override CILNode ToCILNode(CIntermediateLang cil)
@@ -79,7 +80,9 @@ namespace Langlanglang.Parsing.AstNodes
         {
             if (!IsGeneric && !CILFunction.HasBeenDefined)
             {
+                var tmp = LllCompiler.CurrentFunction;
                 LllCompiler.SymTable.Push();
+                LllCompiler.CurrentFunction = this;
                 for (int i = 0; i < Params.Count; ++i)
                 {
                     var cPar = CILFunction.Params[i];
@@ -92,6 +95,7 @@ namespace Langlanglang.Parsing.AstNodes
                 }
                 CILFunction.HasBeenDefined = true;
                 LllCompiler.SymTable.Pop();
+                LllCompiler.CurrentFunction = tmp;
             }
         }
 
@@ -99,8 +103,8 @@ namespace Langlanglang.Parsing.AstNodes
         {
             foreach (var par in Params)
             {
-                if (par.PointerDepth != 0) { continue; }
-                var parType = LllCompiler.SymTable.LookupType(par.Type);
+                if (par.Type.PointerDepth != 0) { continue; }
+                var parType = par.Type.ToLllType();
                 if (parType is LllIntegerType) return true;
             }
             return false;
@@ -112,13 +116,13 @@ namespace Langlanglang.Parsing.AstNodes
             sb.Append(name);
             foreach (var p in @params)
             {
-                if (p.IsGenericlyTyped)
+                if (p.IsGeneric)
                 {
                     sb.Append("_##");
                 }
                 else
                 {
-                    sb.Append(string.Format("_{0}{1}", p.Type, new string('p', p.PointerDepth)));
+                    sb.Append(string.Format("_{0}{1}", p.Type, new string('p', p.Type.PointerDepth)));
                 }
             }
             return sb.ToString();
@@ -131,20 +135,20 @@ namespace Langlanglang.Parsing.AstNodes
                 throw new NotImplementedException("TODO: Exception for ConvertFronGenericToActual where args and pars mismatch count");
             }
             var clonedPars = Params.Select(p => p.ShallowClone()).ToList();
-            var retType = ReturnType;
-            var retPtrDepth = ReturnPtrDepth;
+            var retType = ReturnType.TypeName;
+            var retPtrDepth = ReturnType.PointerDepth;
             var genericTypes = new Dictionary<string, LllType>();
             for (int i = 0; i < clonedPars.Count; ++i)
             {
                 var p = clonedPars[i];
-                if (p.IsGenericlyTyped)
+                if (p.IsGeneric)
                 {
                     var arg = args[i];
                     var argTy = arg.TryInferType(cil);
-                    var alreadyAdded = genericTypes.ContainsKey(p.Type);
+                    var alreadyAdded = genericTypes.ContainsKey(p.Type.TypeName);
                     if (alreadyAdded)
                     {
-                        var pType = genericTypes[p.Type];
+                        var pType = genericTypes[p.Type.TypeName];
                         if (argTy.TryCast(pType))
                         {
                             argTy = pType;
@@ -163,11 +167,11 @@ namespace Langlanglang.Parsing.AstNodes
                     }
                     if (!alreadyAdded)
                     {
-                        genericTypes.Add(p.Type, arg.TryInferType(cil).Clone(argTy.PointerDepth));
+                        //genericTypes.Add(p.Type, arg.TryInferType(cil).Clone(argTy.PointerDepth));
+                        genericTypes.Add(p.Type.TypeName, arg.TryInferType(cil));
                     }
-                    p.Type = argTy.Name;
-                    p.PointerDepth = argTy.PointerDepth;
-                    p.IsGenericlyTyped = false;
+                    var newType = new AstType(p.SourceInfo, argTy.Name, argTy.PointerDepth, 0, argTy.IsAReference, false);
+                    p.Type = newType;
                 }
             }
             if (genericTypes.ContainsKey(retType))
@@ -176,9 +180,11 @@ namespace Langlanglang.Parsing.AstNodes
                 retType = type.Name;
                 retPtrDepth = type.PointerDepth;
             }
+            var fixedRetType = new AstType(ReturnType.SourceInfo, retType, retPtrDepth, 0, ReturnType.IsAReference,
+                false);
 
             // TODO: Deep copy the body.
-            return new AstFunc(si, Name, clonedPars, retType, retPtrDepth, Body);
+            return new AstFunc(si, Name, clonedPars, fixedRetType, Body);
         }
 
         public virtual bool MatchesArgsExact(CIntermediateLang cil, List<AstExpression> args)
@@ -218,7 +224,7 @@ namespace Langlanglang.Parsing.AstNodes
                 // for something to weakly match, the parameter needs to either be generic or
                 // both the param and arg need to be integers
                 var par = Params[i];
-                if (par.IsGenericlyTyped) { continue; }
+                if (par.IsGeneric) { continue; }
                 var arg = args[i];
                 var argType = arg.TryInferType(cil);
                 var parType = par.GetRealType();

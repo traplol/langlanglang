@@ -16,8 +16,8 @@ namespace Langlanglang.Parsing.AstNodes
         public bool UsesThisPtr { get; set; }
         public bool CanOverride { get; set; }
 
-        public AstExtend(SourceInfo si, string extends, string name, bool usesThisPtr, List<AstDeclaration> @params, string returnType, int retPtrDepth, List<AstNode> body)
-            : base(si, string.Format("{0}_{1}", extends, name), @params, returnType, retPtrDepth, body)
+        public AstExtend(SourceInfo si, string extends, string name, bool usesThisPtr, List<AstDeclaration> @params, AstType retType, List<AstNode> body)
+            : base(si, string.Format("{0}_{1}", extends, name), @params, retType, body)
         {
             Extends = extends;
             UsesThisPtr = usesThisPtr;
@@ -55,15 +55,15 @@ namespace Langlanglang.Parsing.AstNodes
             }
             if (!IsGeneric)
             {
-                var retType = LllCompiler.SymTable.LookupType(ReturnType);
+                var retType = ReturnType.ToLllType();
                 if (extending.IsPrimitive && UsesThisPtr)
                 {
-                    Params[0].PointerDepth = 0;
+                    Params[0].Type.PointerDepth = 0;
                 }
                 CILFunction = cil.CreateFunction(
                     SourceInfo,
                     retType.CName,
-                    ReturnPtrDepth,
+                    retType.PointerDepth,
                     cName,
                     Params.Select(p => p.ToCILVariableDecl(cil)).ToList());
             }
@@ -92,7 +92,6 @@ namespace Langlanglang.Parsing.AstNodes
                 UsesThisPtr,
                 tmpFunc.Params,
                 tmpFunc.ReturnType,
-                tmpFunc.ReturnPtrDepth,
                 tmpFunc.Body)
             {
                 Name = Name,
@@ -148,7 +147,7 @@ namespace Langlanglang.Parsing.AstNodes
                 // for something to weakly match, the parameter needs to either be generic or
                 // both the param and arg need to be integers
                 var par = Params[i+1];
-                if (par.IsGenericlyTyped) { continue; }
+                if (par.IsGeneric) { continue; }
                 var arg = args[i];
                 var argType = arg.TryInferType(cil);
                 var parType = par.GetRealType();

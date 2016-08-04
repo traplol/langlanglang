@@ -16,34 +16,18 @@ namespace Langlanglang.Parsing.AstNodes
     public class AstDeclaration : AstStatement
     {
         public string Name { get; set; }
-        public string Type { get; set; }
-        public int FixedArraySize { get; set; }
         public AstExpression AssigningValue { get; set; }
-        public int PointerDepth { get; set; }
-        public bool IsGenericlyTyped { get; set; }
+        public bool IsFixedArray => Type.FixedArraySize != 0;
+        public bool IsGeneric => Type.IsGeneric;
 
-        public bool IsFixedArray => FixedArraySize != 0;
+        public AstType Type { get; set; }
 
-        public AstDeclaration(SourceInfo si, string name, string type, int pointerDepth, AstExpression assigningValue, bool isGenericlyTyped = false)
+        public AstDeclaration(SourceInfo si, string name, AstType type, AstExpression assigningValue)
             : base(si)
         {
             Name = name;
             Type = type;
-            PointerDepth = pointerDepth;
             AssigningValue = assigningValue;
-            IsGenericlyTyped = isGenericlyTyped;
-            FixedArraySize = 0;
-        }
-
-        public AstDeclaration(SourceInfo si, string name, string type, int pointerDepth, AstExpression assigningValue, int fixedArraySize, bool isGenericlyTyped = false)
-            : base(si)
-        {
-            Name = name;
-            Type = type;
-            PointerDepth = pointerDepth;
-            AssigningValue = assigningValue;
-            IsGenericlyTyped = isGenericlyTyped;
-            FixedArraySize = fixedArraySize;
         }
 
         public override CILStatement ToCILStatement(CIntermediateLang cil)
@@ -58,13 +42,12 @@ namespace Langlanglang.Parsing.AstNodes
             LllType type;
             if (Type != null)
             {
-                type = LllCompiler.SymTable.LookupType(Type);
+                type = Type.ToLllType();
             }
             else
             {
                 type = AssigningValue.TryInferType(cil);
-                PointerDepth = type.PointerDepth;
-                Type = type.Name;
+                Type = new AstType(SourceInfo, type.Name, type.PointerDepth, 0, type.IsAReference, false);
             }
             var cName = NameGenerator.UniqName("var", Name);
             var cType = cil.SymTable.LookupType(type.CName);
@@ -75,16 +58,16 @@ namespace Langlanglang.Parsing.AstNodes
                 {
                     throw new NotImplementedException("Assigning to a fixed size array is not implemented.");
                 }
-                return new CILFixedArray(SourceInfo, cType, PointerDepth, cName, FixedArraySize);
+                return new CILFixedArray(SourceInfo, cType, type.PointerDepth, cName, Type.FixedArraySize);
             }
 
             if (AssigningValue == null)
             {
-                var decl = new CILVariableDecl(SourceInfo, cType, PointerDepth, cName);
+                var decl = new CILVariableDecl(SourceInfo, cType, type.PointerDepth, cName);
                 return decl;
             }
             var val = AssigningValue.ToCILExpression(cil);
-            return new CILVariableDecl(SourceInfo, cType, PointerDepth, cName, val);
+            return new CILVariableDecl(SourceInfo, cType, type.PointerDepth, cName, val);
         }
 
         public CILVariableDecl ToCILVariableDeclAndDecl(CIntermediateLang cil)
@@ -97,7 +80,8 @@ namespace Langlanglang.Parsing.AstNodes
 
         public LllType GetRealType()
         {
-            return LllCompiler.SymTable.LookupType(Type).Clone(PointerDepth);
+            return Type.ToLllType();
+            //return LllCompiler.SymTable.LookupType(Type).Clone(PointerDepth);
         }
 
         public override CILNode ToCILNode(CIntermediateLang cil)
@@ -111,10 +95,7 @@ namespace Langlanglang.Parsing.AstNodes
                 SourceInfo, 
                 Name, 
                 Type, 
-                PointerDepth, 
-                AssigningValue,
-                FixedArraySize,
-                IsGenericlyTyped);
+                AssigningValue);
         }
     }
 }

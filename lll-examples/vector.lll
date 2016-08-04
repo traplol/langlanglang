@@ -30,6 +30,11 @@ extend Vector __lshift__(this, item: int) -> Vector* {
     return this;
 }
 
+extend Vector __rshift__(this, dest: ref int) -> Vector* {
+    dest = this.pop_back();
+    return this;
+}
+
 extend Vector pop_back(this) -> int {
     tmp := this.Array[this.Length - 1];
     this.Array[this.Length - 1] = 0;
@@ -70,3 +75,14 @@ test := new Vector();
 
 test << 1 << 2 << 3 << 4 << 5;
 test.print_elems();
+
+
+a:int;
+b:int;
+c:int;
+d:int;
+e:int;
+
+test >> a >> b >> c >> d >> e;
+test.print_elems();
+printf("%d, %d, %d, %d, %d\n", a, b, c, d, e);

@@ -26,7 +26,7 @@ namespace Langlanglang.Parsing.AstNodes
 
         public override CILExpression ToCILExpression(CIntermediateLang cil)
         {
-            var type = TryInferType(cil).Clone(PointerDepth-1);
+            var type = TryInferType(cil).Clone(PointerDepth-1, false);
             var @sizeof = new CILSizeof(SourceInfo, string.Format("{0}{1}", type.CName, new string('*', type.PointerDepth)));
             var size = new CILBinaryOp(SourceInfo, Expression.ToCILExpression(cil), CILBinaryOp.OpType.Mul, @sizeof);
             var alloc = new CILCall(SourceInfo, new CILIdent(SourceInfo, "malloc"), new List<CILExpression> {size});
@@ -43,7 +43,7 @@ namespace Langlanglang.Parsing.AstNodes
 
         public override LllType TryInferType(CIntermediateLang cil)
         {
-            return LllCompiler.SymTable.LookupType(Type).Clone(PointerDepth);
+            return LllCompiler.SymTable.LookupType(Type).Clone(PointerDepth, false);
         }
     }
 }

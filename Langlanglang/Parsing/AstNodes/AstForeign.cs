@@ -19,8 +19,8 @@ namespace Langlanglang.Parsing.AstNodes
 
         private static readonly Regex CNameRegex = new Regex(@"^[a-zA-Z_][a-zA-Z0-9_]*$");
 
-        public AstForeign(SourceInfo sourceInfo, List<AstDeclaration> @params, string lllname, string cname, string returnType, int retPtrDepth, bool isVarArgs) 
-            : base(sourceInfo, lllname, @params, returnType, retPtrDepth, null)
+        public AstForeign(SourceInfo sourceInfo, List<AstDeclaration> @params, string lllname, string cname, AstType retType, bool isVarArgs) 
+            : base(sourceInfo, lllname, @params, retType, null)
         {
             Name = lllname;
             CName = cname;
@@ -35,11 +35,11 @@ namespace Langlanglang.Parsing.AstNodes
         {
             if (cil.SymTable.LookupSym(CName) == null)
             {
-                var retType = LllCompiler.SymTable.LookupType(ReturnType);
+                var retType = ReturnType.ToLllType();
                 cil.DeclareFunction(
                     SourceInfo,
                     retType.CName,
-                    ReturnPtrDepth,
+                    retType.PointerDepth,
                     CName,
                     Params.Select(p => p.ToCILVariableDecl(cil)).ToList(),
                     IsVarArgs);

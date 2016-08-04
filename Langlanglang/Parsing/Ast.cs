@@ -118,8 +118,10 @@ namespace Langlanglang.Parsing
             Console.WriteLine("Generating text to be written to file...");
             var code = new StringBuilder();
             code.AppendLine("#include <stddef.h>");
-            code.AppendLine("#include <stdio.h>");
             code.AppendLine("#include <stdint.h>");
+            code.AppendLine("#include <stdio.h>");
+            code.AppendLine("#include <string.h>");
+            code.AppendLine("#include <stdlib.h>");
 
             code.Append(_cil);
             return code.ToString();

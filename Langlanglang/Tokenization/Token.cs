@@ -63,6 +63,7 @@ namespace Langlanglang.Tokenization
         Delete,             // delete
         Foreign,            // foreign
         As,                 // as
+        Ref,                // ref
 
         // OTHER
         Ident,              // [a-zA-Z_]+[a-zA-Z0-9_]*

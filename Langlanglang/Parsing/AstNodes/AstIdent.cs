@@ -49,16 +49,12 @@ namespace Langlanglang.Parsing.AstNodes
                 {
                     return null;
                 }
-                var cTyName = LllCompiler.SymTable.LookupType(decl.Type);
-                return cTyName.Clone(decl.PointerDepth);
-                //return new LllType(cTyName, decl.PointerDepth);
+                return decl.GetRealType();
             }
             var func = sym.Extra as AstFunc;
             if (func != null)
             {
-                var cTyName = LllCompiler.SymTable.LookupType(func.ReturnType);
-                return cTyName.Clone(func.ReturnPtrDepth);
-                //return new LllType(cTyName, func.ReturnPtrDepth);
+                return func.GetRealReturnType();
             }
             throw new NotImplementedException();
         }
