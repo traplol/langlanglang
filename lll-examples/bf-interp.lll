@@ -101,32 +101,12 @@ extend FixedArray_i8 __index__(this, idx: size) -> ref i8 {
     return this.Array[idx];
 }
 
-struct FixedArray_i32 {
-    Length: size;
-    Array: i32*;
-}
-
-extend FixedArray_i32(this, n: size) {
-    this.Length = n;
-    this.Array = new i32[n];
-    for i in 0..this.Length-1 {
-        this.Array[i] = 0;
-    }
-}
-extend FixedArray_i32 __index__(this, idx: size) -> ref i32 {
-    if idx >= this.Length {
-        printf("fixed array(i32) bounds check failed, exiting...\n");
-        exit(-1);
-    }
-    return this.Array[idx];
-}
-
 struct BfMachine {
     PC: int;
     DP: int;
     DPMax: int;
     Data: FixedArray_i8*;
-    JmpTable: FixedArray_i32*;
+    JmpTable: Vector*;
     Code: Vector*;
 }
 
@@ -135,38 +115,48 @@ extend BfMachine(this, n: size) {
     this.DP = 0;
     this.DPMax = 0;
     this.Data = new FixedArray_i8(n);
-    this.JmpTable = new FixedArray_i32(n);
-    this.Code = new Vector();
+    this.JmpTable = 0;
+    this.Code = 0;
 }
 
 extend BfMachine ReadInput(this) {
-    c: i32;
+    jmpStack := new Vector();
     jmps := new Vector();
+    code := new Vector();
     i := 0;
     while 1 {
-        c = getchar();
+        c := getchar();
         if c == -1 {
-            this.Code << 0;
-            if jmps.Length != 0 {
+            code << 0;
+            if jmpStack.Length != 0 {
                 printf("mismatched '[', exiting...");
                 exit(-1);
             }
+            if this.Code {
+                delete this.Code;
+            }
+            if this.JmpTable {
+                delete this.JmpTable;
+            }
+            this.Code = code;
+            this.JmpTable = jmps;
             return;
         }
         if strCont(c, 8, "<>+-.,[]") {
-            this.Code << c;
+            code << c;
+            jmps << 0;
             if c == "["[0] {
                 //printf("[ @ %d\n", i);
-                jmps << i;
+                jmpStack << i;
             }
             else if c == "]"[0] {
                 if jmps.Length < 1 {
                     printf("mismatched ']', exiting...");
                     exit(-1);
                 }
-                tmp := jmps.PopBack();
-                this.JmpTable[i] = tmp;
-                this.JmpTable[tmp] = i;
+                tmp := jmpStack.PopBack();
+                jmps[i] = tmp;
+                jmps[tmp] = i;
                 //printf("] @ %d -- %d<->%d\n", i, tmp, i);
             }
             i = i + 1;
@@ -239,8 +229,11 @@ extend BfMachine Fetch(this, debug: bool, delay: i32) -> i32 {
         this.PrintIns();
         this.PrintData();
     }
-    ins_123 := this.Code[this.PC];
-    return ins_123;
+    if this.Code {
+        ins_123 := this.Code[this.PC];
+        return ins_123;
+    }
+    return 0;
 }
 
 extend BfMachine PrintIns(this) {
