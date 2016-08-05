@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CIL;
 using Langlanglang.Parsing.AstNodes;
+using Langlanglang.TypeChecking.Exceptions;
 
 namespace Langlanglang.TypeChecking
 {
@@ -19,13 +21,16 @@ namespace Langlanglang.TypeChecking
             _members = new Dictionary<string, AstDeclaration>();
         }
 
-        public AstDeclaration GetMember(string name)
+        public AstDeclaration GetMember(SourceInfo loc, string name)
         {
             if (_members.ContainsKey(name))
             {
                 return _members[name];
             }
-            throw new NotImplementedException("TODO: Exception for failed member lookup");
+            throw new StructMemberNotFoundException(
+                string.Format(
+                    "Error: {0} : Struct `{1}'(at {2}) does not contain a member called `{3}'",
+                    loc, Struct.Name, Struct.SourceInfo, name));
         }
 
         public void AddMember(AstDeclaration member)

@@ -122,6 +122,7 @@ namespace Langlanglang.Parsing
             code.AppendLine("#include <stdio.h>");
             code.AppendLine("#include <string.h>");
             code.AppendLine("#include <stdlib.h>");
+            code.AppendLine("#include <Windows.h>");
 
             code.Append(_cil);
             return code.ToString();

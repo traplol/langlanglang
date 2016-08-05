@@ -1,0 +1,308 @@
+foreign func exit(code: int);
+foreign func getchar() -> i32;
+foreign func Sleep(dura: i32);
+
+struct Vector {
+    Capacity: size;
+    Length: size;
+    Array: int*;
+}
+
+extend Vector(this) {
+    this.Capacity = 8;
+    this.Length = 0;
+    this.Array = new int[this.Capacity];
+    for i in 0..this.Capacity-1 {
+        this.Array[i] = 0;
+    }
+}
+
+extend ~Vector(this) {
+    this.Capacity = 0;
+    this.Length = 0;
+    delete this.Array;
+}
+
+extend Vector PushBack(this, item: int) {
+    if this.Length + 1 >= this.Capacity {
+        this.Resize(this.Capacity * 2);
+    }
+    this.Array[this.Length] = item;
+    this.Length = this.Length + 1;
+}
+
+extend Vector __index__(this, idx: size) -> ref int {
+    if idx >= this.Capacity {
+        printf("vector array bounds check failed, exiting...\n");
+        exit(1);
+    }
+    return this.Array[idx];
+}
+
+extend Vector __lshift__(this, item: int) -> Vector* {
+    this.PushBack(item);
+    return this;
+}
+
+extend Vector __rshift__(this, dest: ref int) -> Vector* {
+    dest = this.PopBack();
+    return this;
+}
+
+extend Vector PopBack(this) -> int {
+    tmp := this.Array[this.Length - 1];
+    this.Array[this.Length - 1] = 0;
+    this.Length = this.Length - 1;
+    return tmp;
+}
+
+extend Vector Resize(this, newSize: size) {
+    newArray : int* = alloc(newSize * sizeof(int));
+    limit := min(this.Length, newSize);
+    for i := 0; i < limit; i = i + 1 {
+        newArray[i] = this.Array[i];
+    }
+    tmp := this.Array;
+    this.Array = newArray;
+    this.Capacity = newSize;
+    this.Length = limit;
+    delete tmp;
+}
+
+extend Vector Peek(this) -> i32 {
+    n := this[this.Length - 1];
+    return n;
+}
+
+func min(x: #T, y: #T) -> T {
+    if x < y {
+        return x;
+    }
+    return y;
+}
+
+struct FixedArray_i8 {
+    Length: size;
+    Array: i8*;
+}
+
+extend FixedArray_i8(this, n: size) {
+    this.Length = n;
+    this.Array = new i8[n];
+    for i in 0..this.Length-1 {
+        this.Array[i] = 0;
+    }
+}
+extend FixedArray_i8 __index__(this, idx: size) -> ref i8 {
+    if idx >= this.Length {
+        printf("fixed array(i8) bounds check failed, exiting...\n");
+        exit(-1);
+    }
+    return this.Array[idx];
+}
+
+struct FixedArray_i32 {
+    Length: size;
+    Array: i32*;
+}
+
+extend FixedArray_i32(this, n: size) {
+    this.Length = n;
+    this.Array = new i32[n];
+    for i in 0..this.Length-1 {
+        this.Array[i] = 0;
+    }
+}
+extend FixedArray_i32 __index__(this, idx: size) -> ref i32 {
+    if idx >= this.Length {
+        printf("fixed array(i32) bounds check failed, exiting...\n");
+        exit(-1);
+    }
+    return this.Array[idx];
+}
+
+struct BfMachine {
+    PC: int;
+    DP: int;
+    DPMax: int;
+    Data: FixedArray_i8*;
+    JmpTable: FixedArray_i32*;
+    Code: Vector*;
+}
+
+extend BfMachine(this, n: size) {
+    this.PC = 0;
+    this.DP = 0;
+    this.DPMax = 0;
+    this.Data = new FixedArray_i8(n);
+    this.JmpTable = new FixedArray_i32(n);
+    this.Code = new Vector();
+}
+
+extend BfMachine ReadInput(this) {
+    c: i32;
+    jmps := new Vector();
+    i := 0;
+    while 1 {
+        c = getchar();
+        if c == -1 {
+            this.Code << 0;
+            if jmps.Length != 0 {
+                printf("mismatched '[', exiting...");
+                exit(-1);
+            }
+            return;
+        }
+        if strCont(c, 8, "<>+-.,[]") {
+            this.Code << c;
+            if c == "["[0] {
+                //printf("[ @ %d\n", i);
+                jmps << i;
+            }
+            else if c == "]"[0] {
+                if jmps.Length < 1 {
+                    printf("mismatched ']', exiting...");
+                    exit(-1);
+                }
+                tmp := jmps.PopBack();
+                this.JmpTable[i] = tmp;
+                this.JmpTable[tmp] = i;
+                //printf("] @ %d -- %d<->%d\n", i, tmp, i);
+            }
+            i = i + 1;
+        }
+    }
+}
+
+func strCont(c: char, n: size, str: char*) -> bool {
+    for i in 0..n-1 {
+        if str[i] == c {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+extend BfMachine IncDp(this) {
+    this.DP = this.DP + 1;
+    if this.DP > this.DPMax {
+        this.DPMax = this.DP;
+    }
+    this.PC = this.PC + 1;
+}
+
+extend BfMachine IncAtDp(this) {
+    this.Data[this.DP] = this.Data[this.DP] + 1;
+    this.PC = this.PC + 1;
+}
+
+extend BfMachine DecDp(this) {
+    this.DP = this.DP - 1;
+    this.PC = this.PC + 1;
+}
+
+extend BfMachine DecAtDp(this) {
+    this.Data[this.DP] = this.Data[this.DP] - 1;
+    this.PC = this.PC + 1;
+}
+
+extend BfMachine Output(this) {
+    printf("%c", this.Data[this.DP]);
+    this.PC = this.PC + 1;
+}
+
+extend BfMachine Input(this) {
+    this.Data[this.DP] = getchar();
+    this.PC = this.PC + 1;
+}
+
+extend BfMachine JmpF(this) {
+    if this.Data[this.DP] == 0 {
+        this.PC = this.JmpTable[this.PC];
+    }
+    this.PC = this.PC + 1;
+}
+
+extend BfMachine JmpB(this) {
+    if this.Data[this.DP] != 0 {
+        this.PC = this.JmpTable[this.PC];
+    }
+    else {
+        this.PC = this.PC + 1;
+    }
+}
+
+extend BfMachine Fetch(this, debug: bool, delay: i32) -> i32 {
+    if debug {
+        Sleep(delay);
+        printf("==========DBG_DUMP==========\n");
+        this.PrintIns();
+        this.PrintData();
+    }
+    ins_123 := this.Code[this.PC];
+    return ins_123;
+}
+
+extend BfMachine PrintIns(this) {
+    printf("PC: %d -> %d (%c)\n", this.PC, this.Code[this.PC], this.Code[this.PC]);
+}
+
+extend BfMachine PrintData(this) {
+    printf("DP: %d -> ", this.DP);
+    for i in 0..this.DPMax {
+        if this.DP == i {
+            printf("'");
+        }
+        printf("%d ", this.Data[i]);
+    }
+    printf("\n");
+}
+
+extend BfMachine Run(this, dbg: bool, delay: i32) {
+    while 1 {
+        ins := this.Fetch(dbg, delay);
+        if ins == 0 {
+            return;
+        }
+        if ins == ">"[0] {
+            this.IncDp();
+        }
+        else if ins == "<"[0] {
+            this.DecDp();
+        }
+        else if ins == "+"[0] {
+            this.IncAtDp();
+        }
+        else if ins == "-"[0] {
+            this.DecAtDp();
+        }
+        else if ins == "."[0] {
+            this.Output();
+        }
+        else if ins == ","[0] {
+            this.Input();
+        }
+        else if ins == "["[0] {
+            this.JmpF();
+        }
+        else if ins == "]"[0] {
+            this.JmpB();
+        }
+        else {
+            this.PC = this.PC + 1;
+        }
+    }
+}
+
+extend BfMachine DumpCode(this) {
+    for i in 0..this.Code.Length-1 {
+        printf("%c", this.Code[i]);
+    }
+    printf("\n");
+}
+
+
+bf := new BfMachine(65000);
+bf.ReadInput();
+//bf.DumpCode();
+bf.Run(0, 750);

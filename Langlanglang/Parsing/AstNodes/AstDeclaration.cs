@@ -39,18 +39,27 @@ namespace Langlanglang.Parsing.AstNodes
 
         public CILVariableDecl ToCILVariableDecl(CIntermediateLang cil)
         {
-            LllType type;
+            // TODO: Do propery type checking between declared type and inferred/rhs type
+            LllType realType;
             if (Type != null)
             {
-                type = Type.ToLllType();
+                realType = Type.ToLllType();
             }
             else
             {
-                type = AssigningValue.TryInferType(cil);
-                Type = new AstType(SourceInfo, type.Name, type.PointerDepth, 0, type.IsAReference, false);
+                realType = AssigningValue.TryInferType(cil);
+                if (realType.IsAReference)
+                {
+                    // Auto-dereference the type...
+                    Type = new AstType(SourceInfo, realType.Name, realType.PointerDepth-1, 0, false, false);
+                }
+                else
+                {
+                    Type = new AstType(SourceInfo, realType.Name, realType.PointerDepth, 0, realType.IsAReference, false);
+                }
             }
             var cName = NameGenerator.UniqName("var", Name);
-            var cType = cil.SymTable.LookupType(type.CName);
+            var cType = cil.SymTable.LookupType(realType.CName);
 
             if (IsFixedArray)
             {
@@ -58,16 +67,24 @@ namespace Langlanglang.Parsing.AstNodes
                 {
                     throw new NotImplementedException("Assigning to a fixed size array is not implemented.");
                 }
-                return new CILFixedArray(SourceInfo, cType, type.PointerDepth, cName, Type.FixedArraySize);
+                return new CILFixedArray(SourceInfo, cType, realType.PointerDepth, cName, Type.FixedArraySize);
             }
 
+            // covers the case of declaration and function paramters
             if (AssigningValue == null)
             {
-                var decl = new CILVariableDecl(SourceInfo, cType, type.PointerDepth, cName);
+                var decl = new CILVariableDecl(SourceInfo, cType, realType.PointerDepth, cName);
                 return decl;
             }
             var val = AssigningValue.ToCILExpression(cil);
-            return new CILVariableDecl(SourceInfo, cType, type.PointerDepth, cName, val);
+            var srcTy = AssigningValue.TryInferType(cil);
+            var fixedPtrDepth = srcTy.PointerDepth;
+            if (srcTy.IsAReference && !Type.IsAReference)
+            {
+                --fixedPtrDepth;
+                val = new CILDereference(SourceInfo, val);
+            }
+            return new CILVariableDecl(SourceInfo, cType, fixedPtrDepth, cName, val);
         }
 
         public CILVariableDecl ToCILVariableDeclAndDecl(CIntermediateLang cil)

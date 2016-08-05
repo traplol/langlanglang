@@ -86,6 +86,7 @@
     <Compile Include="Tokenization\TokenParser.cs" />
     <Compile Include="Tokenization\TokenParserContainer.cs" />
     <Compile Include="Tokenization\TokenStream.cs" />
+    <Compile Include="TypeChecking\Exceptions\StructMemberNotFoundException.cs" />
     <Compile Include="TypeChecking\LllFunction.cs" />
     <Compile Include="TypeChecking\LllIntegerType.cs" />
     <Compile Include="TypeChecking\LllStruct.cs" />

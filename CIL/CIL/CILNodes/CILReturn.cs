@@ -18,6 +18,12 @@ namespace CIL.CILNodes
             ReturnExpression = returnExpression;
         }
 
+        public CILReturn(SourceInfo si)
+            : base(si)
+        {
+            ReturnExpression = null;
+        }
+
         public override void Codegen(CIntermediateLang cil, IndentingStringBuilder sb)
         {
             if (cil.CurrentFunction == null)

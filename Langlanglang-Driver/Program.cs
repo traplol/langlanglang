@@ -53,6 +53,7 @@ namespace Langlanglang_Driver
             File.WriteAllText(cfilePath, compiledCode);
 
             var otherArgs = new StringBuilder();
+            otherArgs.Append("/O2 /GL ");
             otherArgs.AppendFormat(@"/Fo""{0}"" ", objPath);
             otherArgs.AppendFormat(@"/Fe""{0}"" ", exePath);
             //otherArgs.AppendFormat(@"/I""C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include"" ");
@@ -69,16 +70,5 @@ namespace Langlanglang_Driver
             p.Start();
             p.WaitForExit();
         }
-
-        private static string GetEnv(IDictionary env)
-        {
-            var sb = new StringBuilder();
-            foreach (DictionaryEntry v in env)
-            {
-                sb.AppendLine(string.Format("{0}:{1}", v.Key, v.Value));
-            }
-            return sb.ToString();
-        }
-
     }
 }

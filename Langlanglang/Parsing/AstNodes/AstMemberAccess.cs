@@ -40,7 +40,7 @@ namespace Langlanglang.Parsing.AstNodes
             {
                 throw new NotImplementedException("TODO");
             }
-            var member = from_.GetMember(MemberIdent);
+            var member = from_.GetMember(SourceInfo, MemberIdent);
             var membType = LllCompiler.SymTable.LookupType(member.Type.TypeName);
             return membType.Clone(member.Type.PointerDepth, membType.IsAReference);
         }

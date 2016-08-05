@@ -1,3 +1,18 @@
 func test(arr: int*, n: int) -> ref int {
     return arr[n];
 }
+
+arr: int[32];
+for i in 0..31 {
+    arr[i] = i + 1;
+}
+
+for i in 0..31 {
+    printf("%d, ", arr[i]);
+}
+
+printf("\n%d\n", test(arr, 21));
+
+test(arr, 21) = 42;
+
+printf("%d\n", test(arr, 21));
