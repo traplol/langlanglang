@@ -57,6 +57,7 @@
     <Compile Include="ParserTests.cs" />
     <Compile Include="ParserMalformedTests.cs" />
     <Compile Include="IntegerTypeTests.cs" />
+    <Compile Include="PackageTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CIL\CIL\CIL.csproj">

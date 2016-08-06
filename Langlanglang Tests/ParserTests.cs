@@ -674,12 +674,52 @@ namespace Langlanglang_Tests
             var ast = ParseString("struct Struct { x : int[45]; }");
             Assert.AreEqual(1, ast.Roots.Count);
             var @struct = ast.Roots[0] as AstStruct;
-            var decl = @struct.Members[0];
-            Assert.AreEqual("x", decl.Name);
-            Assert.AreEqual("int", decl.Type.TypeName);
-            Assert.AreEqual(1, decl.Type.PointerDepth);
-            Assert.IsTrue(decl.IsFixedArray);
-            Assert.AreEqual(decl.Type.FixedArraySize, 45);
+            var x = @struct.Members[0];
+            Assert.AreEqual("x", x.Name);
+            Assert.AreEqual("int", x.Type.TypeName);
+            Assert.AreEqual(1, x.Type.PointerDepth);
+            Assert.IsTrue(x.IsFixedArray);
+            Assert.AreEqual(x.Type.FixedArraySize, 45);
+        }
+
+        [TestMethod]
+        public void AstTestGenericStruct()
+        {
+
+            var ast = ParseString(
+              @"struct MyStruct<#T1> {
+                    M1: int;
+                    M2: #T1;
+                }");
+            Assert.AreEqual(1, ast.Roots.Count);
+            var @struct = ast.Roots[0] as AstStruct;
+            Assert.IsTrue(@struct.IsGeneric);
+            var m1 = @struct.Members[0];
+            Assert.AreEqual("M1", m1.Name);
+            Assert.AreEqual("int", m1.Type.TypeName);
+            Assert.IsFalse(m1.IsGeneric);
+            var m2 = @struct.Members[1];
+            Assert.AreEqual("M2", m2.Name);
+            Assert.AreEqual("T1", m2.Type.TypeName);
+            Assert.IsTrue(m2.IsGeneric);
+        }
+
+        [TestMethod]
+        public void AstTestGenericStructDecl()
+        {
+            var ast = ParseString("test: MyStruct<char*>;");
+            Assert.AreEqual(1, ast.Roots.Count);
+            var decl = ast.Roots[0] as AstDeclaration;
+            Assert.IsTrue(decl.Type.IsGeneric);
+        }
+
+        [TestMethod]
+        public void AstTestGenericCtro()
+        {
+            var ast = ParseString("test := new MyStruct<char*>();");
+            Assert.AreEqual(1, ast.Roots.Count);
+            var decl = ast.Roots[0] as AstDeclaration;
+            Assert.IsNull(decl.Type);
         }
     }
 }

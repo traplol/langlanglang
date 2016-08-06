@@ -12,7 +12,7 @@ namespace Langlanglang.TypeChecking
         public string Name { get; set; }
         public string MangledName { get; set; }
         public string CName { get; }
-        public AstNode Extra { get; }
+        public AstNode Extra { get; protected set; }
 
         public LllSymbol(string name, string mangledName, string cName, AstNode extra = null)
         {

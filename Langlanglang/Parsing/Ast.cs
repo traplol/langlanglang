@@ -76,19 +76,19 @@ namespace Langlanglang.Parsing
             //}
             Console.WriteLine();
             i = 0;
-            Console.Write("Generating Struct definitions...(0/{0})", Structs.Count);
+            Console.Write("Generating Struct definitions... (0/{0})", Structs.Count);
             foreach (var s in Structs)
             {
                 s.CDefine(_cil);
-                Console.Write("\rGenerating Struct definitions...({0}/{1})", ++i, Structs.Count);
+                Console.Write("\rGenerating Struct definitions... ({0}/{1})", ++i, Structs.Count);
             }
             Console.WriteLine();
             i = 0;
-            Console.Write("Generating Function definitions...({0})", Functions.Count);
+            Console.Write("Generating Function definitions... ({0})", Functions.Count);
             foreach (var f in Functions)
             {
                 f.CDefine(_cil);
-                Console.Write("\rGenerating Function definitions...({0}/{1})", ++i, Functions.Count);
+                Console.Write("\rGenerating Function definitions... ({0}/{1})", ++i, Functions.Count);
             }
             Console.WriteLine();
             //foreach (var e in Extends)
@@ -98,11 +98,11 @@ namespace Langlanglang.Parsing
 
             _cil.CurrentFunction = lll_Main;
             i = 0;
-            Console.Write("Translating top level statements...(0/{0})", TopLevelStatements.Count);
+            Console.Write("Translating top level statements... (0/{0})", TopLevelStatements.Count);
             foreach (var t in TopLevelStatements)
             {
                 lll_Main.AddBodyNode(t.ToCILNode(_cil));
-                Console.Write("\rTranslating top level statements...({0}/{1})", ++i, TopLevelStatements.Count);
+                Console.Write("\rTranslating top level statements... ({0}/{1})", ++i, TopLevelStatements.Count);
             }
             Console.WriteLine();
 
@@ -117,13 +117,7 @@ namespace Langlanglang.Parsing
 
             Console.WriteLine("Generating text to be written to file...");
             var code = new StringBuilder();
-            code.AppendLine("#include <stddef.h>");
-            code.AppendLine("#include <stdint.h>");
-            code.AppendLine("#include <stdio.h>");
-            code.AppendLine("#include <string.h>");
-            code.AppendLine("#include <stdlib.h>");
-            code.AppendLine("#include <Windows.h>");
-
+            code.AppendLine("#include \"lll-lib-base.h\"");
             code.Append(_cil);
             return code.ToString();
         }

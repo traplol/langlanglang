@@ -1,12 +1,46 @@
-func fib(n: i64) -> i64 {
+foreign func clock() -> u32;
+
+func fibr(n: u32) -> u32 {
     if n < 2 {
         return n;
     }
-    return fib(n - 1) + fib(n - 2);
+    return fibr(n - 1) + fibr(n - 2);
 }
 
-n := 40;
-printf("first %d fibonacci numbers!\n", n);
+
+n := 42;
+printf("recursive: first %d fibonacci numbers!\n", n);
+tt :u32= 0;
 for i in 0..n {
-    printf("%d: %lld\n", i, fib(i));
+    s := clock();
+    r := fibr(i);
+    e := clock();
+    t := e - s;
+    tt = tt + t;
+    printf("%2d: %lu... %ums\n", i, r, t);
 }
+printf("recursive 0..%d took %ums\n", n, tt);
+
+func fibi(n: u32) -> u32 {
+    a: u32 = 0;
+    b: u32 = 1;
+    c: u32 = 1;
+    for i in 0..n-1 {
+        a = b;
+        b = c;
+        c = a + b;
+    }
+    return a;
+}
+
+printf("recursive: first %d fibonacci numbers!\n", n);
+tt = 0;
+for i in 0..n {
+    s := clock();
+    r := fibi(i);
+    e := clock();
+    t := e - s;
+    tt = tt + t;
+    printf("%2d: %lu... %ums\n", i, r, t);
+}
+printf("recursive 0..%d took %ums\n", n, tt);

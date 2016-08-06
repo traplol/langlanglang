@@ -30,6 +30,16 @@ namespace Langlanglang.TypeChecking
                     return;
                 }
             }
+            var structSym = symbol as LllStruct;
+            if (structSym != null)
+            {
+                var @struct = structSym.Struct;
+                if (@struct.IsGeneric)
+                {
+                    GenericSymbols.Add(symbol);
+                    return;
+                }
+            }
             ConcreteSymbols.Add(symbol);
         }
 

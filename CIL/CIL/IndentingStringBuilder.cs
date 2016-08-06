@@ -95,7 +95,7 @@ namespace CIL
 
         public void LineDecl(SourceInfo si)
         {
-            if (false && si.Line >= 0)
+            if (si.Line >= 0)
             {
                 _sb.AppendLine(string.Format("#line {0} \"{1}\"", si.Line, si.FilePath));
             }

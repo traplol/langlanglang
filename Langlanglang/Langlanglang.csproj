@@ -46,6 +46,8 @@
     <Compile Include="LllException.cs" />
     <Compile Include="Compiler\Exceptions\TypeInferenceFailedException.cs" />
     <Compile Include="Compiler\LllCompiler.cs" />
+    <Compile Include="Packages\BasePackage.cs" />
+    <Compile Include="Packages\Package.cs" />
     <Compile Include="Parsing\AstNodes\AstAssign.cs" />
     <Compile Include="Parsing\Ast.cs" />
     <Compile Include="Parsing\AstNodes\AstBinaryOp.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="Tokenization\TokenParserContainer.cs" />
     <Compile Include="Tokenization\TokenStream.cs" />
     <Compile Include="TypeChecking\Exceptions\StructMemberNotFoundException.cs" />
+    <Compile Include="TypeChecking\Exceptions\SymbolAlreadyDeclaredException.cs" />
     <Compile Include="TypeChecking\LllFunction.cs" />
     <Compile Include="TypeChecking\LllIntegerType.cs" />
     <Compile Include="TypeChecking\LllStruct.cs" />

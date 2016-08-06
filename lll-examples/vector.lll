@@ -24,12 +24,10 @@ extend Vector push_back(this, item: int) {
     this.Array[this.Length] = item;
     this.Length = this.Length + 1;
 }
-
 extend Vector __lshift__(this, item: int) -> Vector* {
     this.push_back(item);
     return this;
 }
-
 extend Vector __rshift__(this, dest: ref int) -> Vector* {
     dest = this.pop_back();
     return this;

@@ -1,3 +1,7 @@
+foreign func getchar() -> i32;
+foreign func strtol(str: char*, endptr: char**, base: int) -> i32;
+
+
 struct OStream {
     x: i32;
 }
@@ -14,9 +18,48 @@ extend OStream __lshift__(this, val: int) -> OStream* {
     return this;
 }
 
-out := new OStream();
+cout := new OStream();
 endl := "\n";
 
-for i in 0..100 {
-    out << i << "hello world" << 42 << -123 << "boop" << endl;
+//for i in 0..100 {
+//    cout << i << "hello world" << 42 << -123 << "boop" << endl;
+//}
+
+struct IStream {
+    x: i32;
+}
+extend IStream(this) {}
+
+extend IStream __rshift__(this, dest: ref char*) -> IStream* {
+    str := new char[80];
+    idx := 0;
+    while 1 {
+        c := getchar();
+        if c == '\n'[0] {
+            str[idx] = 0;
+            dest = str;
+            return this;
+        }
+        str[idx] = c;
+        idx = idx + 1;
+    }
+}
+
+extend IStream __rshift__(this, dest: ref int) -> IStream* {
+    cin := new IStream();
+    str: char*;
+    cin >> str;
+    dest = strtol(str, 0, 10);
+    return this;
+}
+
+
+cin := new IStream();
+
+str1: char*;
+n1: int;
+
+for i in 1..3 {
+    cin >> str1 >> n1;
+    cout << str1 << n1 << endl;
 }

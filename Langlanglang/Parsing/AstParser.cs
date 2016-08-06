@@ -522,11 +522,31 @@ namespace Langlanglang.Parsing
             return new AstType(si, ident, ptrDepth, fixedSize, isAReference, isGeneric);
         }
 
+        private static List<AstType> ParseTypeList(TokenStream tks, bool allowFixedArray, bool allowGenerics)
+        {
+            var list = new List<AstType>();
+            while (true)
+            {
+                var type = ParseType(tks, allowFixedArray, allowGenerics);
+                list.Add(type);
+                if (tks.Accept(TokenType.Comma) == null)
+                {
+                    return list;
+                }
+            }
+        }
+
         private static AstStruct ParseStruct(TokenStream tks)
         {
             var si = tks.SourceInfo;
             tks.Expect(TokenType.Struct);
             var ident = tks.Expect(TokenType.Ident).StringValue;
+            List<AstType> genericTypeList = null;
+            if (tks.Accept(TokenType.LessThan) != null)
+            {
+                genericTypeList = ParseTypeList(tks, false, true);
+                tks.Expect(TokenType.GreaterThan);
+            }
             tks.Expect(TokenType.LCurBracket);
             var members = new List<AstDeclaration>();
             while (tks.Accept(TokenType.RCurBracket) == null)
@@ -539,7 +559,7 @@ namespace Langlanglang.Parsing
                 tks.Expect(TokenType.Semicolon);
                 members.Add(new AstDeclaration(si, memberId, membType, null));
             }
-            return new AstStruct(si, ident, members);
+            return new AstStruct(si, ident, members, genericTypeList);
         }
 
         private static AstExtend ParseDestructor(TokenStream tks)

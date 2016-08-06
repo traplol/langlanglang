@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Langlanglang.Parsing.AstNodes;
+using Langlanglang.TypeChecking.Exceptions;
 
 namespace Langlanglang.TypeChecking
 {
@@ -35,7 +36,16 @@ namespace Langlanglang.TypeChecking
 
         public void AddSymbol(LllSymbol symbol)
         {
-            _lllUniqueSymbols.Peek().Add(symbol.MangledName, symbol);
+            var uniqBot = _lllUniqueSymbols.Peek();
+            if (uniqBot.ContainsKey(symbol.MangledName))
+            {
+                var sym = uniqBot[symbol.MangledName];
+                var msg = string.Format(
+                    "Error: {0} : Symbol `{1}' already declared at {2}.", 
+                    symbol.Extra.SourceInfo, symbol.Name, sym.Extra.SourceInfo);
+                throw new SymbolAlreadyDeclaredException(msg);
+            }
+            uniqBot.Add(symbol.MangledName, symbol);
             var top = _lllSymbols.Peek();
             if (top.ContainsKey(symbol.Name))
             {

@@ -83,14 +83,16 @@ namespace Langlanglang.Compiler
             }
             catch (LllException ex)
             {
-                Console.WriteLine("LLLEX: " + ex.Message);
+                Console.WriteLine();
+                Console.WriteLine(ex.Message);
                 var st = new StackTrace(ex, true);
                 var frame = st.GetFrame(0);
                 Console.WriteLine("{0} : {1}:{2}", frame.GetFileName(), frame.GetFileLineNumber(), frame.GetFileColumnNumber());
             }
             catch (CILException ex)
             {
-                Console.WriteLine("CILEX: " + ex.Message);
+                Console.WriteLine();
+                Console.WriteLine(ex.Message);
                 var st = new StackTrace(ex, true);
                 var frame = st.GetFrame(0);
                 Console.WriteLine("{0} : {1}:{2}", frame.GetFileName(), frame.GetFileLineNumber(), frame.GetFileColumnNumber());

@@ -17,6 +17,7 @@ namespace Langlanglang.TypeChecking
         public LllStruct(string cName, AstStruct @struct, bool isAReference, int pointerDepth = 0)
             : base(@struct.Name, cName, false, isAReference, pointerDepth)
         {
+            Extra = @struct;
             Struct = @struct;
             _members = new Dictionary<string, AstDeclaration>();
         }

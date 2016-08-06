@@ -15,14 +15,18 @@ namespace Langlanglang.Parsing.AstNodes
     {
         public string Name { get; set; }
         public List<AstDeclaration> Members { get; set; }
+        public bool IsGeneric { get; }
+        public List<AstType> GenericTypeNames { get; } 
 
         private CILStruct _cilStruct;
 
-        public AstStruct(SourceInfo si, string name, List<AstDeclaration> members)
+        public AstStruct(SourceInfo si, string name, List<AstDeclaration> members, List<AstType> genericTypeNames)
             : base(si)
         {
             Name = name;
             Members = members;
+            IsGeneric = Members.Any(m => m.IsGeneric);
+            GenericTypeNames = genericTypeNames;
         }
 
         public void CDecl(CIntermediateLang cil)
