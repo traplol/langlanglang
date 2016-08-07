@@ -1,6 +1,6 @@
 /*
 * This is a BrainFuck interpreter written in Langlanglang meant only to show
-* examples features of the Langlanglang language.
+* features and examples of the Langlanglang language.
 *
 * This interpreter has only been tested with the *.bf files in this directory
 *
@@ -53,13 +53,13 @@ extend Vector __index__(this, idx: size) -> ref int {
     return this.Array[idx];
 }
 
-// Inoked from 'vector << integer'
+// Invoked from 'vector << integer'
 extend Vector __lshift__(this, item: int) -> Vector* {
     this.PushBack(item);
     return this;
 }
 
-// Inoked from 'vector >> integer'
+// Invoked from 'vector >> integer'
 extend Vector __rshift__(this, dest: ref int) -> Vector* {
     dest = this.PopBack();
     return this;
@@ -87,7 +87,7 @@ extend Vector Resize(this, newSize: size) {
     delete tmp;
 }
 
-// returns the last element in the vector
+// Returns the last element in the vector
 extend Vector Peek(this) -> i32 {
     n := this[this.Length - 1];
     return n;
