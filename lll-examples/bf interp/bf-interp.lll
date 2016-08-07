@@ -1,3 +1,12 @@
+/*
+* This is a BrainFuck interpreter written in Langlanglang meant only to show
+* examples features of the Langlanglang language.
+*
+* This interpreter has only been tested with the *.bf files in this directory
+*
+*/
+
+// Make these C functions available
 foreign func exit(code: int);
 foreign func getchar() -> i32;
 foreign func Sleep(dura: i32);
@@ -8,6 +17,7 @@ struct Vector {
     Array: int*;
 }
 
+// Constructor for the Vector struct
 extend Vector(this) {
     this.Capacity = 8;
     this.Length = 0;
@@ -17,12 +27,14 @@ extend Vector(this) {
     }
 }
 
+// Destructor for the vector class, invoked when you 'delete' a Vector
 extend ~Vector(this) {
     this.Capacity = 0;
     this.Length = 0;
     delete this.Array;
 }
 
+// Append an to the end of the vector
 extend Vector PushBack(this, item: int) {
     if this.Length + 1 >= this.Capacity {
         this.Resize(this.Capacity * 2);
@@ -31,6 +43,8 @@ extend Vector PushBack(this, item: int) {
     this.Length = this.Length + 1;
 }
 
+
+// Invoked from 'vector[integer]'
 extend Vector __index__(this, idx: size) -> ref int {
     if idx >= this.Capacity {
         printf("vector array bounds check failed, exiting...\n");
@@ -39,16 +53,19 @@ extend Vector __index__(this, idx: size) -> ref int {
     return this.Array[idx];
 }
 
+// Inoked from 'vector << integer'
 extend Vector __lshift__(this, item: int) -> Vector* {
     this.PushBack(item);
     return this;
 }
 
+// Inoked from 'vector >> integer'
 extend Vector __rshift__(this, dest: ref int) -> Vector* {
     dest = this.PopBack();
     return this;
 }
 
+// Removes and returns the last element in the vector
 extend Vector PopBack(this) -> int {
     tmp := this.Array[this.Length - 1];
     this.Array[this.Length - 1] = 0;
@@ -56,6 +73,7 @@ extend Vector PopBack(this) -> int {
     return tmp;
 }
 
+// Resizes the vector
 extend Vector Resize(this, newSize: size) {
     newArray : int* = alloc(newSize * sizeof(int));
     limit := min(this.Length, newSize);
@@ -69,11 +87,14 @@ extend Vector Resize(this, newSize: size) {
     delete tmp;
 }
 
+// returns the last element in the vector
 extend Vector Peek(this) -> i32 {
     n := this[this.Length - 1];
     return n;
 }
 
+// A generic function that takes two of the same types and
+// returns either one based on the result of 'x.__lt__(y)'
 func min(x: #T, y: #T) -> T {
     if x < y {
         return x;
@@ -102,29 +123,36 @@ extend FixedArray_i8 __index__(this, idx: size) -> ref i8 {
 }
 
 struct BfMachine {
-    PC: int;
-    DP: int;
-    DPMax: int;
-    Data: FixedArray_i8*;
-    JmpTable: Vector*;
-    Code: Vector*;
+    PC: int;               // program counter for the BF machine
+    DP: int;               // data pointer for the BF machine
+    DPMax: int;            // furthest to the right the DP has been (used for debugging)
+    Data: FixedArray_i8*;  // data cells of the BF machine
+    JmpTable: Vector*;     // lookup table for the '[' and ']' instructions
+    Code: Vector*;         // code to execute
 }
 
 extend BfMachine(this, n: size) {
-    this.PC = 0;
-    this.DP = 0;
-    this.DPMax = 0;
+    this.PC = 0; 
+    this.DP = 0; 
+    this.DPMax = 0; 
     this.Data = new FixedArray_i8(n);
     this.JmpTable = 0;
     this.Code = 0;
 }
 
+// Reads input from stdin (getchar) and stores any valid
+// BrainFuck instructions in a vector. This also creates
+// a jump table for the corresponding '[' and ']'
+// This also implements a basic system to check for
+// mismatching '[' and ']'
 extend BfMachine ReadInput(this) {
     jmpStack := new Vector();
     jmps := new Vector();
     code := new Vector();
     i := 0;
     while 1 {
+        // this could easily be adapted to read from a file
+        // but for simplicity, I chose to use stdin
         c := getchar();
         if c == -1 {
             code << 0;
@@ -143,6 +171,7 @@ extend BfMachine ReadInput(this) {
             return;
         }
         if strCont(c, 8, "<>+-.,[]") {
+            // appending
             code << c;
             jmps << 0;
             if c == "["[0] {
@@ -164,6 +193,7 @@ extend BfMachine ReadInput(this) {
     }
 }
 
+// Helper function to check if a string contains a character.
 func strCont(c: char, n: size, str: char*) -> bool {
     for i in 0..n-1 {
         if str[i] == c {
@@ -173,6 +203,7 @@ func strCont(c: char, n: size, str: char*) -> bool {
     return 0;
 }
 
+// the ">" instruction
 extend BfMachine IncDp(this) {
     this.DP = this.DP + 1;
     if this.DP > this.DPMax {
@@ -181,31 +212,37 @@ extend BfMachine IncDp(this) {
     this.PC = this.PC + 1;
 }
 
+// the "+" instruction
 extend BfMachine IncAtDp(this) {
     this.Data[this.DP] = this.Data[this.DP] + 1;
     this.PC = this.PC + 1;
 }
 
+// the "<" instruction
 extend BfMachine DecDp(this) {
     this.DP = this.DP - 1;
     this.PC = this.PC + 1;
 }
 
+// the "-" instruction
 extend BfMachine DecAtDp(this) {
     this.Data[this.DP] = this.Data[this.DP] - 1;
     this.PC = this.PC + 1;
 }
 
+// the "." instruction
 extend BfMachine Output(this) {
     printf("%c", this.Data[this.DP]);
     this.PC = this.PC + 1;
 }
 
+// the "," instruction
 extend BfMachine Input(this) {
     this.Data[this.DP] = getchar();
     this.PC = this.PC + 1;
 }
 
+// the "[" instruction
 extend BfMachine JmpF(this) {
     if this.Data[this.DP] == 0 {
         this.PC = this.JmpTable[this.PC];
@@ -213,6 +250,7 @@ extend BfMachine JmpF(this) {
     this.PC = this.PC + 1;
 }
 
+// the "]" instruction
 extend BfMachine JmpB(this) {
     if this.Data[this.DP] != 0 {
         this.PC = this.JmpTable[this.PC];
@@ -222,6 +260,8 @@ extend BfMachine JmpB(this) {
     }
 }
 
+// Fetches the current instruction with the option of displaying
+// debug info about the current instruction and data cells.
 extend BfMachine Fetch(this, debug: bool, delay: i32) -> i32 {
     if debug {
         Sleep(delay);
@@ -251,6 +291,7 @@ extend BfMachine PrintData(this) {
     printf("\n");
 }
 
+// The main loop of the interpreter to dispatch each instruction
 extend BfMachine Run(this, dbg: bool, delay: i32) {
     while 1 {
         ins := this.Fetch(dbg, delay);
@@ -287,6 +328,7 @@ extend BfMachine Run(this, dbg: bool, delay: i32) {
     }
 }
 
+// Dumps the code read in from stdin
 extend BfMachine DumpCode(this) {
     for i in 0..this.Code.Length-1 {
         printf("%c", this.Code[i]);

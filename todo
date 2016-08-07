@@ -1,0 +1,24 @@
+-*- mode: org-mode -*-
+
+* Langlanglang
+** Bugs
+*** TODO Fix calling extensions with non-pointers
+** Features
+*** TODO Implement proper type checking for variable declarations (AstNodes/AstDeclaration.cs)
+*** TODO Implement generic structs and proper generic types
+*** TODO Implement `__emit {#include<stdio.h>}' directive for bootstrapping
+** Error messages
+*** TODO Implement error message for argument/parameter count mismatch (AstNodes/AstFunc.cs)
+*** TODO Implement error message for generic and real type mismatch (AstNodes/AstFunc.cs)
+*** TODO Implement error emssage for number overflows (AstNodes/AstNumber.cs)
+*** TODO Implement error message for Ctor with no thisptr (AstParser.cs)
+*** TODO Implement error message for Dtor with no thisptr (AstParser.cs)
+*** TODO Implement error message for Dtor with params other than thisptr (AstParser.cs)
+*** TODO Implement error message for attempting to use a non-struct symbol as a struct (TypeChecking/LllSymbolTable.cs)
+*** TODO Implement error message for attempting to use a non-function symbol as a function (TypeChecking/LllSymbolTable.cs)
+*** TODO Implement error message for attempting to use a non-type symbol as a type (TypeChecking/LllSymbolTable.cs)
+** QOL
+*** TODO Implement deep copying for Ast to make generics easier to create (AstNodes/AstFunc.cs)
+** Misc.
+*** TODO Organize lll-examples/
+    
