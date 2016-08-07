@@ -5,9 +5,12 @@
 *** TODO Fix calling extensions with non-pointers
     Ex: value.Extension() should generate `Extension(&value)' not `Extension(value)'
 ** Features
-*** TODO Implement proper type checking for variable declarations (AstNodes/AstDeclaration.cs)
+*** TODO Implement package/require system
 *** TODO Implement generic structs and proper generic types
 *** TODO Implement `__emit {#include<stdio.h>}' directive for bootstrapping
+*** TODO Implement `foreign struct StructName {...}'
+*** TODO Implement `foreign type TypeName as 'ctype' 
+*** TODO Implement proper type checking for variable declarations (AstNodes/AstDeclaration.cs)
 ** Error messages
 *** TODO Implement error message for argument/parameter count mismatch (AstNodes/AstFunc.cs)
 *** TODO Implement error message for generic and real type mismatch (AstNodes/AstFunc.cs)
