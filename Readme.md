@@ -40,7 +40,7 @@ var3 = 77;
 ```
 
 ### Branches
-*NOTE:* The curly braces for any of these constructs are required and CANNOT be ommited.
+*NOTE:* The curly braces for any of these constructs are required and CANNOT be omitted.
 
 Langlanglang has typical branching, the ```else if``` and ```else``` can be omitted.
 
@@ -136,6 +136,9 @@ john.LastName = "Doe";
 
 The key feature of Langlanglang is it's ability to "extend" any structure with another
 function.
+
+*NOTE:* These "extensions" are really just static functions so they do not add any bloat
+to structures.
 
 ```
 // Here is a constructor/initializer for the Person struct.
