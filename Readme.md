@@ -248,7 +248,7 @@ extend Vec3 __ge__(this, other: Vec3*) -> bool {
 #### Operator aliases
 ````
 Usage            Alias
- x[y]            x.__index__[y]
+ x[y]            x.__index__(y)
  x + y           x.__add__(y)
  x - y           x.__sub__(y)
  x * y           x.__mul__(y)
