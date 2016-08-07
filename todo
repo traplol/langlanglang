@@ -1,8 +1,9 @@
--*- mode: org-mode -*-
+-*- mode: org -*-
 
 * Langlanglang
 ** Bugs
 *** TODO Fix calling extensions with non-pointers
+    Ex: value.Extension() should generate `Extension(&value)' not `Extension(value)'
 ** Features
 *** TODO Implement proper type checking for variable declarations (AstNodes/AstDeclaration.cs)
 *** TODO Implement generic structs and proper generic types
