@@ -288,6 +288,7 @@ foo("hello world");
 
 # TODO:
 ```
+Document pointers, new, and delete
 Document auto-references
 Document generic functions
 ```
